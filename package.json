@@ -64,5 +64,8 @@
 		"@toreda/log": "^0.6.7",
 		"@toreda/strong-types": "^0.28.2",
 		"@toreda/time": "^0.1.1"
+	},
+	"resolutions": {
+		"glob-parent": "^5.1.2"
 	}
 }
