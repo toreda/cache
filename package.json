@@ -1,0 +1,68 @@
+{
+	"name": "@toreda/cache",
+	"version": "0.0.1",
+	"description": "Simple TTL-based object cache in TypeScript.",
+	"main": "./dist/index.js",
+	"typings": "./dist/index.d.ts",
+	"scripts": {
+		"build": "yarn build:prod",
+		"build:prod": "yarn gulp --prod",
+		"build:dev": "yarn gulp --dev",
+		"test": "yarn jest --coverage --maxWorkers=50%",
+		"test:dev": "yarn jest --coverage=false --maxWorkers=50%",
+		"test:silent": "yarn jest --coverage=false --maxWorkers=50% --silent --verbose=false",
+		"make:docs": "yarn typedoc docs --categorizeByGroup false --entryPoints ./src/index.ts",
+		"make:depgraph": "yarn madge src/index.ts --image dependency-graph.png"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/toreda/cache.git"
+	},
+	"keywords": [
+		"object",
+		"cache",
+		"ttl",
+		"cache",
+		"toreda",
+		"typescript"
+	],
+	"prettier": "@toreda/prettier-config",
+	"author": "Toreda, Inc.",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/toreda/cache/issues"
+	},
+	"homepage": "https://github.com/toreda/cache#readme",
+	"devDependencies": {
+		"@swc/core": "^1.2.111",
+		"@swc/jest": "^0.2.5",
+		"@toreda/build-tools": "^0.5.9",
+		"@toreda/eslint-config": "^2.2.0",
+		"@toreda/prettier-config": "^1.0.1",
+		"@toreda/types": "^2.4.3",
+		"@types/gulp": "^4.0.9",
+		"@types/jest": "^27.0.3",
+		"@types/mockdate": "^3.0.0",
+		"@types/node": "^16.11.8",
+		"@typescript-eslint/eslint-plugin": "^5.4.0",
+		"@typescript-eslint/parser": "^5.4.0",
+		"eslint": "^8.2.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-prettier": "^4.0.0",
+		"gulp": "^4.0.2",
+		"gulp-typescript": "^6.0.0-alpha.1",
+		"jest": "^27.3.1",
+		"prettier": "^2.4.1",
+		"regenerator-runtime": "^0.13.9",
+		"ts-jest": "^27.0.7",
+		"ts-loader": "^9.2.6",
+		"ts-node": "^10.4.0",
+		"typedoc": "^0.22.9",
+		"typescript": "^4.5.2"
+	},
+	"dependencies": {
+		"@toreda/log": "^0.6.7",
+		"@toreda/strong-types": "^0.28.2",
+		"@toreda/time": "^0.1.1"
+	}
+}
