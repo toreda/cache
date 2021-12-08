@@ -4,13 +4,13 @@
 
 ![Toreda](https://content.toreda.com/logo/toreda-logo.png)
 
+![CI](https://img.shields.io/github/workflow/status/toreda/cache/CI?style=for-the-badge) [![Coverage](https://img.shields.io/sonar/coverage/toreda_cache?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/dashboard?id=toreda_cache) ![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/toreda_cache?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge) ![GitHub issues](https://img.shields.io/github/issues/toreda/cache?style=for-the-badge)
 
 
-![CI](https://img.shields.io/github/workflow/status/toreda/cache/CI?style=for-the-badge)
-[![Coverage](https://img.shields.io/sonar/coverage/toreda_cache?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/dashboard?id=toreda_cache) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_cache)
-![license](https://img.shields.io/github/license/toreda/cache?style=for-the-badge)&nbsp;
+![GitHub package.json version (branch)](https://img.shields.io/github/package-json/v/toreda/cache/master?style=for-the-badge)
+![GitHub Release Date](https://img.shields.io/github/release-date/toreda/cache?style=for-the-badge)
 
-![bundlesize](https://img.shields.io/bundlephobia/minzip/@toreda/cache?style=for-the-badge)
+![license](https://img.shields.io/github/license/toreda/cache?style=for-the-badge)
 
 Simple TTL-based object cache in TypeScript.
 
