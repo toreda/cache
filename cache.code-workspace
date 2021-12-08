@@ -4,5 +4,15 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"yzhang.markdown-all-in-one",
+			"aaron-bond.better-comments",
+			"spywhere.guides",
+			"dbaeumer.vscode-eslint",
+			"esbenp.prettier-vscode",
+			"sonarsource.sonarlint-vscode"
+		]
+	}
 }

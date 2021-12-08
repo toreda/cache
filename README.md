@@ -4,11 +4,24 @@
 
 ![Toreda](https://content.toreda.com/logo/toreda-logo.png)
 
-![CI](https://github.com/toreda/cache/workflows/CI/badge.svg?branch=master) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=coverage)](https://sonarcloud.io/dashboard?id=toreda_cache) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_cache)
+
+
+![CI](https://img.shields.io/github/workflow/status/toreda/cache/CI?style=for-the-badge)
+[![Coverage](https://img.shields.io/sonar/coverage/toreda_cache?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge)](https://sonarcloud.io/dashboard?id=toreda_cache) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=alert_status)](https://sonarcloud.io/dashboard?id=toreda_cache)
+![license](https://img.shields.io/github/license/toreda/cache?style=for-the-badge)&nbsp;
+
+![bundlesize](https://img.shields.io/bundlephobia/minzip/@toreda/cache?style=for-the-badge)
 
 Simple TTL-based object cache in TypeScript.
 
 &nbsp;
+
+# Usage
+
+```typescript
+
+```
+
 
 # Install
 `@toreda/cache` is available as an [NPM package](https://www.npmjs.com/package/@toreda/cache).
