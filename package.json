@@ -42,8 +42,7 @@
 		"@toreda/prettier-config": "^1.0.1",
 		"@toreda/types": "^2.6.0",
 		"@types/gulp": "^4.0.9",
-		"@types/jest": "^27.0.3",
-		"@types/mockdate": "^3.0.0",
+		"@types/jest": "^27.4.0",
 		"@types/node": "^17.0.8",
 		"@typescript-eslint/eslint-plugin": "^5.9.0",
 		"@typescript-eslint/parser": "^5.9.0",
@@ -52,7 +51,8 @@
 		"eslint-plugin-prettier": "^4.0.0",
 		"gulp": "^4.0.2",
 		"gulp-typescript": "^6.0.0-alpha.1",
-		"jest": "^27.4.3",
+		"jest": "^27.4.7",
+		"jest-sonar-reporter": "^2.0.0",
 		"prettier": "^2.5.1",
 		"regenerator-runtime": "^0.13.9",
 		"ts-jest": "^27.1.2",
@@ -68,10 +68,5 @@
 	},
 	"resolutions": {
 		"glob-parent": "^5.1.2"
-	},
-	"jestSonar": {
-		"reportPath": "reports",
-		"reportFile": "test-report.xml",
-		"indent": 4
 	}
 }
