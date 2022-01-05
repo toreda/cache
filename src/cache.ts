@@ -1,7 +1,7 @@
 /**
  *	MIT License
  *
- *	Copyright (c) 2019 - 2021 Toreda, Inc.
+ *	Copyright (c) 2019 - 2022 Toreda, Inc.
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -208,10 +208,6 @@ export class Cache<ItemT extends Cacheable> {
 	 * @returns		void
 	 */
 	public reset(): void {
-		if (!this.items.size) {
-			return;
-		}
-
 		this.pruneDelay.reset();
 		this.lastPrune.reset();
 		this.capacityMax.reset();

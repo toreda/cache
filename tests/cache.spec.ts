@@ -1,7 +1,7 @@
 /**
  *	MIT License
  *
- *	Copyright (c) 2019 - 2021 Toreda, Inc.
+ *	Copyright (c) 2019 - 2022 Toreda, Inc.
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -170,10 +170,11 @@ describe('Cache', () => {
 				expect(result).toBe(0);
 			});
 
-			it(`should return number of when expired items that were deleted`, async () => {
+			it(`should return expired item deletion count`, async () => {
 				const item1: SampleT = {id: 'aaa1441'};
 				const item2: SampleT = {id: 'bbb44141'};
 				const item3: SampleT = {id: 'bbb44141'};
+				instance.pruneDelay(0);
 
 				instance.add(item1);
 				instance.add(item2);
