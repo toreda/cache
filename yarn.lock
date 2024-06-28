@@ -576,6 +576,14 @@
     "@toreda/log" "^0.6.12"
     big.js "^6.1.1"
 
+"@toreda/strong-types@^0.28.5":
+  version "0.28.5"
+  resolved "https://registry.yarnpkg.com/@toreda/strong-types/-/strong-types-0.28.5.tgz#a62bc6f27c0f4a7835b0a50422eee3aea4956607"
+  integrity sha512-l6yUw1kaQP/lM2z8O5qr7XNDRI3ik1X874uBdKML164H42AIyyw8i69LV9ecd0xLGeMsLzzWJ4bjUDqYcQfmvQ==
+  dependencies:
+    "@toreda/log" "^0.6.12"
+    big.js "^6.1.1"
+
 "@toreda/time@^0.1.4":
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/@toreda/time/-/time-0.1.4.tgz#3dfb9a7d208050d8957250c2ece372c9acfc1113"
