@@ -64,7 +64,7 @@
 	"dependencies": {
 		"@toreda/log": "^0.6.16",
 		"@toreda/strong-types": "^0.28.4",
-		"@toreda/time": "^0.1.4"
+		"@toreda/time": "^0.1.7"
 	},
 	"resolutions": {
 		"glob-parent": "^5.1.2"
