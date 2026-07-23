@@ -24,33 +24,44 @@
  */
 
 /**
- * Configuration options used during Cache init.
+ * Operation counters tracked by each `Cache` instance. All counters start at `0` and are
+ * restored to `0` when the parent cache's `reset()` is called.
  *
- * @category Cache Config
+ * @category Cache
  */
-export interface CfgData {
-	/** Maximum number of items that can be cached. When cache size would exceed this size, older
-	 * items are overwritten. */
-	capacityMax: number;
+export class CacheStats {
+	/** Number of `get` calls that returned a cached item. */
+	public hits: number;
+	/** Number of `get` calls that did not return an item, including expired lookups. */
+	public misses: number;
+	/** Number of items successfully added to cache by `add`. */
+	public adds: number;
+	/** Number of items removed by explicit `delete` calls. */
+	public deletes: number;
+	/** Number of items evicted to make room when adding at capacity. */
+	public evictions: number;
+	/** Number of expired items removed, whether by `prune` or lazily during lookups. */
+	public expirations: number;
+
+	constructor() {
+		this.hits = 0;
+		this.misses = 0;
+		this.adds = 0;
+		this.deletes = 0;
+		this.evictions = 0;
+		this.expirations = 0;
+	}
+
 	/**
-	 * Initial size of empty cache. Cache grows automatically as items are added up to `maxSize`.
-	 * Useful in cases where a larger starting cache size is ideal rather than letting it grow,
-	 * such as during init in systems which may rapidly add hundreds of thousands of cache items.
+	 * Reset all counters to `0`.
+	 * @returns		void
 	 */
-	initialSize: number;
-	/**
-	 * Minimum number of seconds allowed prune calls. Prevents costly `prune` calls from occurring
-	 * too frequently.
-	 */
-	pruneDelay: number;
-	/**
-	 * When `true`, each successful `get` call refreshes the item's expiration window (sliding
-	 * expiration). When `false` (default), items expire based on the time they were added.
-	 */
-	slidingExpiration: boolean;
-	/**
-	 * Default TTL (seconds) applied to items added without an explicit per-item ttl. `0` means
-	 * items never expire. Invalid or missing values fall back to `Defaults.CacheItem.TTL`.
-	 */
-	ttl: number;
+	public reset(): void {
+		this.hits = 0;
+		this.misses = 0;
+		this.adds = 0;
+		this.deletes = 0;
+		this.evictions = 0;
+		this.expirations = 0;
+	}
 }

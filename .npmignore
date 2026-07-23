@@ -6,6 +6,7 @@
 .vscode
 *.code-workspace
 coverage
+reports/
 demo/
 docs/
 examples/

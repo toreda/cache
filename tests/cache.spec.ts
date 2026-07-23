@@ -28,9 +28,8 @@ import {Levels, Log} from '@toreda/log';
 import {Cache} from '../src/cache';
 import {CacheItem} from '../src/cache/item';
 import type {Cacheable} from '../src/cacheable';
-import {CfgData} from '../src/cfg/data';
+import type {CfgData} from '../src/cfg/data';
 import {Defaults} from '../src/defaults';
-import {typeMatch} from '@toreda/strong-types';
 
 interface SampleT extends Cacheable {
 	id: string;
@@ -46,7 +45,7 @@ const MOCK_ITEM2: SampleT = {
 
 describe('Cache', () => {
 	let log: Log;
-	let cfg: CfgData<SampleT>;
+	let cfg: CfgData;
 	let instance: Cache<SampleT>;
 
 	beforeAll(() => {
@@ -57,26 +56,28 @@ describe('Cache', () => {
 
 		cfg = {
 			initialSize: 10,
-			log: log
+			pruneDelay: 0,
+			slidingExpiration: false,
+			capacityMax: 50,
+			ttl: 818
 		};
 
-		instance = new Cache<SampleT>(cfg);
+		instance = new Cache<SampleT>({
+			cfg: cfg
+		});
 	});
 
 	beforeEach(() => {
 		instance.reset();
+
+		cfg.initialSize = 10;
+		cfg.pruneDelay = 0;
+		cfg.slidingExpiration = false;
+		cfg.capacityMax = 50;
+		cfg.ttl = 122;
 	});
 
-	describe('Constructor', () => {
-		it(`should create a new log instance when cfg.log is undefined`, () => {
-			const custom = new Cache<SampleT>({
-				log: undefined
-			});
-
-			expect(custom.log).not.toBeUndefined();
-			expect(typeMatch(custom.log, Log)).toBe(true);
-		});
-	});
+	describe('Constructor', () => {});
 
 	describe('Impl', () => {
 		describe('has', () => {
@@ -350,16 +351,18 @@ describe('Cache', () => {
 			});
 
 			it(`should use cfg.capacityMax when provided`, () => {
+				cfg.capacityMax = 3;
 				const custom = new Cache<SampleT>({
-					capacityMax: 3
+					cfg: cfg
 				});
 
 				expect(custom.capacityMax).toBe(3);
 			});
 
 			it(`should evict oldest item when adding beyond capacity`, () => {
+				cfg.capacityMax = 2;
 				const custom = new Cache<SampleT>({
-					capacityMax: 2
+					cfg: cfg
 				});
 
 				custom.add({id: 'aa-111'});
@@ -373,8 +376,9 @@ describe('Cache', () => {
 			});
 
 			it(`should not evict when overwriting an existing item at capacity`, () => {
+				cfg.capacityMax = 2;
 				const custom = new Cache<SampleT>({
-					capacityMax: 2
+					cfg: cfg
 				});
 
 				custom.add({id: 'aa-111'});
@@ -383,6 +387,345 @@ describe('Cache', () => {
 				expect(custom.add({id: 'bb-222'}, true)).toBe(true);
 				expect(custom.size()).toBe(2);
 				expect(custom.has('aa-111')).toBe(true);
+			});
+		});
+
+		describe('delete', () => {
+			it(`should return false when no item matches id`, () => {
+				expect(instance.delete('aa-49719714')).toBe(false);
+			});
+
+			it(`should remove matching item and return true`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+
+				expect(instance.delete(MOCK_ITEM1.id)).toBe(true);
+				expect(instance.size()).toBe(1);
+				expect(instance.has(MOCK_ITEM1.id)).toBe(false);
+				expect(instance.has(MOCK_ITEM2.id)).toBe(true);
+			});
+
+			it(`should only increment stats.deletes when an item is removed`, () => {
+				instance.add(MOCK_ITEM1);
+
+				instance.delete('zz-149714971');
+				expect(instance.stats.deletes).toBe(0);
+
+				instance.delete(MOCK_ITEM1.id);
+				expect(instance.stats.deletes).toBe(1);
+			});
+		});
+
+		describe('ttl', () => {
+			it(`should use the instance default TTL when add ttl arg are provided`, () => {
+				const expectedValue = 910;
+				const custom = new Cache({
+					cfg: {
+						ttl: expectedValue
+					}
+				});
+				custom.add(MOCK_ITEM1);
+
+				const wrapper = custom.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.ttl()).toBe(expectedValue);
+			});
+
+			it(`should use cfg.ttl for items added without a ttl arg`, () => {
+				cfg.ttl = 77;
+				const custom = new Cache<SampleT>({
+					cfg: cfg
+				});
+
+				custom.add(MOCK_ITEM1);
+
+				const wrapper = custom.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.ttl()).toBe(77);
+			});
+
+			it(`should use add ttl arg over cfg.ttl when both are provided`, () => {
+				cfg.ttl = 77;
+				const custom = new Cache<SampleT>({
+					cfg: cfg
+				});
+
+				custom.add(MOCK_ITEM1, false, 55);
+
+				const wrapper = custom.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.ttl()).toBe(55);
+			});
+
+			it(`should accept 0 ttl arg for items which never expire`, () => {
+				instance.add(MOCK_ITEM1, false, 0);
+
+				const wrapper = instance.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.ttl()).toBe(0);
+				expect(wrapper.expired()).toBe(false);
+			});
+		});
+
+		describe('getOrAdd', () => {
+			it(`should return cached item without invoking factory on cache hit`, () => {
+				instance.add(MOCK_ITEM1);
+				const factory = jest.fn().mockReturnValue(MOCK_ITEM2);
+
+				const result = instance.getOrAdd(MOCK_ITEM1.id, factory);
+
+				expect(result).toStrictEqual(MOCK_ITEM1);
+				expect(factory).not.toHaveBeenCalled();
+			});
+
+			it(`should invoke factory with id and cache result on cache miss`, () => {
+				const id = 'aa-4741947194714';
+				const item: SampleT = {id: id};
+				const factory = jest.fn().mockReturnValue(item);
+
+				const result = instance.getOrAdd(id, factory);
+
+				expect(factory).toHaveBeenCalledTimes(1);
+				expect(factory).toHaveBeenCalledWith(id);
+				expect(result).toStrictEqual(item);
+				expect(instance.get(id)).toStrictEqual(item);
+			});
+
+			it(`should apply ttl arg to items created by factory`, () => {
+				const id = 'aa-77419741971';
+				const result = instance.getOrAdd(id, () => ({id: id}), 44);
+
+				expect(result).not.toBeNull();
+				expect(instance.items.get(id)!.ttl()).toBe(44);
+			});
+
+			it(`should return null when factory item cannot be added`, () => {
+				const factory = jest.fn().mockReturnValue({id: ''});
+
+				expect(instance.getOrAdd('aa-19714971', factory)).toBeNull();
+				expect(instance.size()).toBe(0);
+			});
+		});
+
+		describe('touch', () => {
+			it(`should return false when no item matches id`, () => {
+				expect(instance.touch('aa-497149174')).toBe(false);
+			});
+
+			it(`should refresh updated timestamp and return true for unexpired items`, () => {
+				instance.add(MOCK_ITEM1);
+				const wrapper = instance.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.updated()).toBe(0);
+
+				expect(instance.touch(MOCK_ITEM1.id)).toBe(true);
+				expect(wrapper.updated()).toBeGreaterThan(0);
+			});
+
+			it(`should return false and lazily remove expired items`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+
+				expect(instance.touch(MOCK_ITEM1.id)).toBe(false);
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(false);
+			});
+		});
+
+		describe('slidingExpiration', () => {
+			it(`should be false by default`, () => {
+				expect(instance.slidingExpiration).toBe(false);
+			});
+
+			it(`should not refresh updated timestamp on get when disabled`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.get(MOCK_ITEM1.id);
+
+				expect(instance.items.get(MOCK_ITEM1.id)!.updated()).toBe(0);
+			});
+
+			it(`should refresh updated timestamp on successful get when enabled`, () => {
+				cfg.slidingExpiration = true;
+				const custom = new Cache<SampleT>({
+					cfg: cfg
+				});
+
+				custom.add(MOCK_ITEM1);
+				const wrapper = custom.items.get(MOCK_ITEM1.id)!;
+				expect(wrapper.updated()).toBe(0);
+
+				expect(custom.get(MOCK_ITEM1.id)).toStrictEqual(MOCK_ITEM1);
+				expect(wrapper.updated()).toBeGreaterThan(0);
+			});
+		});
+
+		describe('lazy expired item removal', () => {
+			beforeEach(() => {
+				instance.add(MOCK_ITEM1);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+			});
+
+			it(`should remove expired item from map during has lookup`, () => {
+				expect(instance.has(MOCK_ITEM1.id)).toBe(false);
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(false);
+			});
+
+			it(`should remove expired item from map during get lookup`, () => {
+				expect(instance.get(MOCK_ITEM1.id)).toBeNull();
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(false);
+			});
+
+			it(`should increment stats.expirations on lazy removal`, () => {
+				instance.get(MOCK_ITEM1.id);
+
+				expect(instance.stats.expirations).toBe(1);
+			});
+		});
+
+		describe('iteration', () => {
+			it(`should yield ids of unexpired items from keys()`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+
+				expect(Array.from(instance.keys())).toStrictEqual([MOCK_ITEM2.id]);
+			});
+
+			it(`should lazily remove expired items encountered by keys()`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+
+				Array.from(instance.keys());
+
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(false);
+				expect(instance.items.has(MOCK_ITEM2.id)).toBe(true);
+				expect(instance.stats.expirations).toBe(1);
+			});
+
+			it(`should yield unexpired item data from values()`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+				instance.items.get(MOCK_ITEM2.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM2.id)!.created.subDays(1);
+
+				expect(Array.from(instance.values())).toStrictEqual([MOCK_ITEM1]);
+			});
+
+			it(`should lazily remove expired items encountered by values()`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+				instance.items.get(MOCK_ITEM2.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM2.id)!.created.subDays(1);
+
+				Array.from(instance.values());
+
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(true);
+				expect(instance.items.has(MOCK_ITEM2.id)).toBe(false);
+				expect(instance.stats.expirations).toBe(1);
+			});
+
+			it(`should lazily remove expired items encountered by Symbol.iterator`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+
+				expect([...instance]).toStrictEqual([MOCK_ITEM2]);
+				expect(instance.items.has(MOCK_ITEM1.id)).toBe(false);
+			});
+
+			it(`should iterate unexpired item data with Symbol.iterator`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM2);
+
+				expect([...instance]).toStrictEqual([MOCK_ITEM1, MOCK_ITEM2]);
+			});
+
+			it(`should yield nothing when cache is empty`, () => {
+				expect([...instance]).toStrictEqual([]);
+				expect(Array.from(instance.keys())).toStrictEqual([]);
+				expect(Array.from(instance.values())).toStrictEqual([]);
+			});
+		});
+
+		describe('stats', () => {
+			it(`should start all counters at 0`, () => {
+				const custom = new Cache<SampleT>({log: log});
+
+				expect(custom.stats.hits).toBe(0);
+				expect(custom.stats.misses).toBe(0);
+				expect(custom.stats.adds).toBe(0);
+				expect(custom.stats.deletes).toBe(0);
+				expect(custom.stats.evictions).toBe(0);
+				expect(custom.stats.expirations).toBe(0);
+			});
+
+			it(`should count get hits and misses`, () => {
+				instance.add(MOCK_ITEM1);
+
+				instance.get(MOCK_ITEM1.id);
+				instance.get(MOCK_ITEM1.id);
+				instance.get('zz-19714971497');
+
+				expect(instance.stats.hits).toBe(2);
+				expect(instance.stats.misses).toBe(1);
+			});
+
+			it(`should count successful adds only`, () => {
+				instance.add(MOCK_ITEM1);
+				instance.add(MOCK_ITEM1);
+
+				expect(instance.stats.adds).toBe(1);
+			});
+
+			it(`should count capacity evictions`, () => {
+				cfg.capacityMax = 1;
+				const custom = new Cache<SampleT>({
+					cfg: cfg
+				});
+
+				custom.add(MOCK_ITEM1);
+				custom.add(MOCK_ITEM2);
+
+				expect(custom.stats.evictions).toBe(1);
+			});
+
+			it(`should count expired items removed by prune`, () => {
+				instance.pruneDelay(0);
+				instance.add(MOCK_ITEM1);
+				instance.items.get(MOCK_ITEM1.id)!.ttl(1);
+				instance.items.get(MOCK_ITEM1.id)!.created.subDays(1);
+
+				instance.prune();
+
+				expect(instance.stats.expirations).toBe(1);
+			});
+
+			it(`should reset all counters to 0 when cache reset is called`, () => {
+				cfg.capacityMax = 1;
+				const custom = new Cache<SampleT>({
+					cfg: cfg
+				});
+
+				custom.add(MOCK_ITEM1);
+				custom.add(MOCK_ITEM2);
+				custom.get(MOCK_ITEM2.id);
+				custom.get('zz-4971497149');
+				custom.delete(MOCK_ITEM2.id);
+
+				expect(custom.stats.adds).toBeGreaterThan(0);
+				expect(custom.stats.hits).toBeGreaterThan(0);
+				expect(custom.stats.misses).toBeGreaterThan(0);
+				expect(custom.stats.deletes).toBeGreaterThan(0);
+				expect(custom.stats.evictions).toBeGreaterThan(0);
+
+				custom.reset();
+
+				expect(custom.stats.hits).toBe(0);
+				expect(custom.stats.misses).toBe(0);
+				expect(custom.stats.adds).toBe(0);
+				expect(custom.stats.deletes).toBe(0);
+				expect(custom.stats.evictions).toBe(0);
+				expect(custom.stats.expirations).toBe(0);
 			});
 		});
 
@@ -401,8 +744,9 @@ describe('Cache', () => {
 			});
 
 			it(`should restore capacityMax to its initial value`, () => {
+				cfg.capacityMax = 5;
 				const custom = new Cache<SampleT>({
-					capacityMax: 5
+					cfg: cfg
 				});
 
 				custom.capacityMax = 100;

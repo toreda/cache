@@ -38,17 +38,13 @@ export class CacheItem<ItemT> {
 	public readonly created: Time;
 	public readonly updated: Time;
 	public readonly ttl: Time;
-	/** Optional log passed to all Time instances this item creates. Time errors log to the raw
-	 *  console when no log is provided. */
-	private readonly log?: Log;
 
-	constructor(data: ItemT, ttl?: number, log?: Log) {
+	constructor(data: ItemT, ttl?: number) {
 		this.data = data;
-		this.log = log;
 
-		this.created = timeMake('s', 0, log).setNow();
-		this.updated = timeMake('s', 0, log);
-		this.ttl = timeMake('s', CacheItem.sanitizeTtl(ttl), log);
+		this.created = timeMake('s', 0).setNow();
+		this.updated = timeMake('s', 0);
+		this.ttl = timeMake('s', CacheItem.sanitizeTtl(ttl));
 	}
 
 	/**
@@ -78,7 +74,7 @@ export class CacheItem<ItemT> {
 			return false;
 		}
 
-		const now = timeMake('s', 0, this.log).setNow();
+		const now = timeMake('s', 0).setNow();
 		let elapsed: Time | null;
 
 		if (this.updated() > 0) {

@@ -23,17 +23,18 @@
  *
  */
 
-import {numberValue} from '@toreda/strong-types';
+import {numberNullValue, numberValue} from '@toreda/strong-types';
 
 import {CacheItem} from './cache/item';
 import type {CacheItemId} from './cache/item/id';
+import {CacheStats} from './cache/stats';
 import type {Cacheable} from './cacheable';
-import type {CfgData} from './cfg/data';
 import {Defaults} from './defaults';
-import {Log} from '@toreda/log';
 import type {Time} from '@toreda/time';
 import {cacheItemId} from './cache/item/id';
 import {timeMake} from '@toreda/time';
+import type {LogLike} from '@toreda/shared-types';
+import type {CacheInit} from './cache/init';
 
 /**
  * Time based object cache for TypeScript generics.
@@ -42,7 +43,7 @@ import {timeMake} from '@toreda/time';
  */
 export class Cache<ItemT extends Cacheable> {
 	/** Global log instance. */
-	public readonly log: Log;
+	public readonly log?: LogLike;
 	/** Map of ItemId  */
 	public readonly items: Map<CacheItemId, CacheItem<ItemT>>;
 	/** Optional validator invoked on each `add` call. Items are only added when the validator
@@ -52,35 +53,57 @@ export class Cache<ItemT extends Cacheable> {
 	public capacityMax: number;
 	/** capacityMax value resolved during init. Restored by `reset()`. */
 	private readonly initialCapacityMax: number;
+	/** Default TTL (seconds) for items added without an explicit ttl arg. `null` falls back to
+	 *  `Defaults.CacheItem.TTL`. */
+	public readonly itemTtl: number | null;
+	/** When `true`, each successful `get` call refreshes the item's expiration window. */
+	public readonly slidingExpiration: boolean;
+	/** Operation counters for this cache instance. All counters restored to 0 by `reset()`. */
+	public readonly stats: CacheStats;
 	/** Minimum number of seconds between prune calls. `prune()` execution aborts automatically when called
 	 *  more frequently than delay allows. */
 	public readonly pruneDelay: Time;
 	/** Timestamp of the last successful prune operation. */
 	public readonly lastPrune: Time;
 
-	constructor(cfg?: CfgData<ItemT>) {
+	constructor(init?: CacheInit<ItemT>) {
 		this.items = new Map<string, CacheItem<ItemT>>();
 
-		this.itemValidator = cfg?.itemValidator ? cfg.itemValidator : null;
-		this.log = this.makeLog(cfg?.log);
-		this.capacityMax = numberValue(cfg?.capacityMax, Defaults.Cache.CapacityMax);
+		this.itemValidator = init?.itemValidator ? init?.itemValidator : null;
+		this.capacityMax = numberValue(init?.cfg?.capacityMax, Defaults.Cache.CapacityMax);
 		this.initialCapacityMax = this.capacityMax;
-		this.pruneDelay = timeMake('s', numberValue(cfg?.pruneDelay, Defaults.Cache.PruneDelay), this.log);
+		this.itemTtl = numberNullValue(init?.cfg?.ttl, null);
+		this.slidingExpiration = init?.cfg?.slidingExpiration === true;
+		this.stats = new CacheStats();
+		this.pruneDelay = timeMake(
+			's',
+			numberValue(init?.cfg?.pruneDelay, Defaults.Cache.PruneDelay),
+			this.log
+		);
 		this.lastPrune = timeMake('s', 0, this.log);
 	}
 
 	/**
-	 * Helper that guarantees a Log instance is set during init. Check optional `log` arg and return it if
-	 * it's a valid `Log` instance. Otherwise creates & returns a new `Log` instance.
-	 * @param baseLog
-	 * @returns
+	 * Get wrapper for item matching `id` if one exists and is unexpired. Expired items found
+	 * during lookup are lazily removed from cache.
+	 * @param id		Unique ID of item in cache.
+	 * @returns			CacheItem wrapper when it exists & is unexpired, otherwise `null`.
 	 */
-	private makeLog(log?: Log): Log {
-		if (!(log instanceof Log)) {
-			return new Log();
+	private getItem(id: string): CacheItem<ItemT> | null {
+		const item = this.items.get(id);
+		if (!item || !(item instanceof CacheItem)) {
+			return null;
 		}
 
-		return log.makeLog('Cache');
+		if (item.expired()) {
+			if (this.items.delete(id) === true) {
+				this.stats.expirations++;
+			}
+
+			return null;
+		}
+
+		return item;
 	}
 
 	/**
@@ -92,44 +115,61 @@ export class Cache<ItemT extends Cacheable> {
 	}
 
 	/**
-	 * Check unexpired item with target id exists in cache. Returns false when target item expires
-	 * but still exists in cache.
+	 * Check unexpired item with target id exists in cache. Expired items found during lookup
+	 * are lazily removed from cache.
 	 * @param id		Unique ID of item in cache.
 	 * @returns
 	 */
 	public has(id: string): boolean {
-		if (!this.items.has(id)) {
-			return false;
-		}
-
-		const item = this.items.get(id);
-		if (!item || !(item instanceof CacheItem)) {
-			return false;
-		}
-
-		return item?.expired() === false;
+		return this.getItem(id) !== null;
 	}
 
 	/**
-	 * Get item from cache matching `id` if one exists.
+	 * Get item from cache matching `id` if one exists. Expired items found during lookup are
+	 * lazily removed from cache. When sliding expiration is enabled, successful gets refresh
+	 * the item's expiration window.
 	 * @param id		Globally unique item identifier.
 	 * @returns			Item of type `ItemT` if it exists, otherwise `null`.
 	 */
 	public get(id: string): ItemT | null {
-		if (!this.has(id)) {
+		const item = this.getItem(id);
+
+		if (!item || !item.data) {
+			this.stats.misses++;
 			return null;
 		}
 
-		const wrapper = this.items.get(id);
-		if (wrapper?.expired()) {
+		this.stats.hits++;
+
+		if (this.slidingExpiration) {
+			item.update();
+		}
+
+		return item.data;
+	}
+
+	/**
+	 * Get item from cache matching `id`, or create it with `factory` and add the result to
+	 * cache when no unexpired item matches.
+	 * @param id		Globally unique item identifier.
+	 * @param factory	Invoked to create the item on cache miss. Should return an item whose
+	 *					id matches the `id` arg, otherwise the item is cached under its own id.
+	 * @param ttl		Optional TTL (seconds) applied when the factory item is added.
+	 * @returns			Cached or newly created item, or `null` when the factory item could
+	 *					not be added.
+	 */
+	public getOrAdd(id: string, factory: (id: string) => ItemT, ttl?: number): ItemT | null {
+		const existing = this.get(id);
+		if (existing !== null) {
+			return existing;
+		}
+
+		const item = factory(id);
+		if (this.add(item, false, ttl) !== true) {
 			return null;
 		}
 
-		if (!wrapper?.data) {
-			return null;
-		}
-
-		return wrapper.data;
+		return item;
 	}
 
 	/**
@@ -138,9 +178,11 @@ export class Cache<ItemT extends Cacheable> {
 	 * @param item			Item to cache.
 	 * @param overwrite		`true`	-	Overwrite existing item with same ID.
 	 *						`false`	-	(default) Do not overwrite existing item. add call fails.
+	 * @param ttl			Optional TTL (seconds) for this item. Falls back to the cache's
+	 *						configured ttl, then `Defaults.CacheItem.TTL`. `0` never expires.
 	 * @returns
 	 */
-	public add(item: ItemT, overwrite?: boolean): boolean {
+	public add(item: ItemT, overwrite?: boolean, ttl?: number): boolean {
 		if (this.itemValidator && this.itemValidator(item) !== true) {
 			return false;
 		}
@@ -166,14 +208,92 @@ export class Cache<ItemT extends Cacheable> {
 					break;
 				}
 
-				this.items.delete(oldest.value);
+				if (this.items.delete(oldest.value) === true) {
+					this.stats.evictions++;
+				}
 			}
 		}
 
-		const wrappedItem = new CacheItem<ItemT>(item, undefined, this.log);
+		let itemTtl: number | undefined;
+		if (typeof ttl === 'number') {
+			itemTtl = ttl;
+		} else if (this.itemTtl !== null) {
+			itemTtl = this.itemTtl;
+		} else {
+			itemTtl = Defaults.CacheItem.TTL;
+		}
+
+		const wrappedItem = new CacheItem<ItemT>(item, itemTtl);
 		this.items.set(id, wrappedItem);
+		this.stats.adds++;
 
 		return true;
+	}
+
+	/**
+	 * Delete item from cache matching `id` if one exists.
+	 * @param id		Unique ID of item in cache.
+	 * @returns			`true` when an item was removed, otherwise `false`.
+	 */
+	public delete(id: string): boolean {
+		const result = this.items.delete(id);
+
+		if (result === true) {
+			this.stats.deletes++;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Refresh expiration window of unexpired item matching `id`. Expired items found during
+	 * lookup are lazily removed from cache and cannot be touched.
+	 * @param id		Unique ID of item in cache.
+	 * @returns			`true` when the item exists & was refreshed, otherwise `false`.
+	 */
+	public touch(id: string): boolean {
+		const item = this.getItem(id);
+		if (!item) {
+			return false;
+		}
+
+		item.update();
+		return true;
+	}
+
+	/**
+	 * Iterate ids of unexpired cached items. Expired items encountered during iteration are
+	 * skipped & lazily removed from cache.
+	 * @returns
+	 */
+	public *keys(): IterableIterator<CacheItemId> {
+		for (const id of this.items.keys()) {
+			if (this.getItem(id) !== null) {
+				yield id;
+			}
+		}
+	}
+
+	/**
+	 * Iterate unexpired cached items. Expired items encountered during iteration are skipped &
+	 * lazily removed from cache.
+	 * @returns
+	 */
+	public *values(): IterableIterator<ItemT> {
+		for (const id of this.items.keys()) {
+			const item = this.getItem(id);
+			if (item !== null) {
+				yield item.data;
+			}
+		}
+	}
+
+	/**
+	 * Iterate unexpired cached items.
+	 * @returns
+	 */
+	public [Symbol.iterator](): IterableIterator<ItemT> {
+		return this.values();
 	}
 
 	/**
@@ -192,6 +312,7 @@ export class Cache<ItemT extends Cacheable> {
 			if (value.expired()) {
 				if (this.items.delete(key) === true) {
 					count++;
+					this.stats.expirations++;
 				}
 			}
 		}
@@ -201,13 +322,14 @@ export class Cache<ItemT extends Cacheable> {
 	}
 
 	/**
-	 * Reset cache to inital state.
+	 * Reset cache to inital state. Clears all cached items and restores all stat counters to 0.
 	 * @returns		void
 	 */
 	public reset(): void {
 		this.pruneDelay.reset();
 		this.lastPrune.reset();
 		this.capacityMax = this.initialCapacityMax;
+		this.stats.reset();
 		this.items.clear();
 	}
 }
