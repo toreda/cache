@@ -1,7 +1,7 @@
 /**
  *	MIT License
  *
- *	Copyright (c) 2019 - 2022 Toreda, Inc.
+ *	Copyright (c) 2019 - 2026 Toreda, Inc.
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,9 @@ import {Cache} from '../src/cache';
 import {CacheItem} from '../src/cache/item';
 import type {Cacheable} from '../src/cacheable';
 import {CfgData} from '../src/cfg/data';
+import {Defaults} from '../src/defaults';
 import {typeMatch} from '@toreda/strong-types';
 
-const MOCK_ID = 'aaa-197414-1486141';
 interface SampleT extends Cacheable {
 	id: string;
 }
@@ -51,8 +51,8 @@ describe('Cache', () => {
 
 	beforeAll(() => {
 		log = new Log({
-			consoleEnabled: true,
-			globalLevel: Levels.ALL
+			consoleEnabled: false,
+			globalLevel: Levels.ERROR
 		});
 
 		cfg = {
@@ -149,15 +149,15 @@ describe('Cache', () => {
 		});
 
 		describe('prune', () => {
-			it(`should return 0 when time elapsed since last prune is less than min prune delay`, async () => {
+			it(`should return 0 when time elapsed since last prune is less than min prune delay`, () => {
 				instance.pruneDelay(3333);
 				instance.lastPrune.setNow();
-				const result = await instance.prune();
+				const result = instance.prune();
 
 				expect(result).toBe(0);
 			});
 
-			it(`should return 0 when cache contains multiple unexpired items`, async () => {
+			it(`should return 0 when cache contains multiple unexpired items`, () => {
 				const item1: SampleT = {id: 'aaa1441'};
 				const item2: SampleT = {id: 'bbb44141'};
 				instance.add(item1);
@@ -166,11 +166,11 @@ describe('Cache', () => {
 				instance.items.get('aaa1441')!.ttl(9999999999);
 				instance.items.get('bbb44141')!.ttl(999999999);
 
-				const result = await instance.prune();
+				const result = instance.prune();
 				expect(result).toBe(0);
 			});
 
-			it(`should return expired item deletion count`, async () => {
+			it(`should return expired item deletion count`, () => {
 				const item1: SampleT = {id: 'aaa1441'};
 				const item2: SampleT = {id: 'bbb44141'};
 				const item3: SampleT = {id: 'bbb44141'};
@@ -185,8 +185,50 @@ describe('Cache', () => {
 				instance.items.get('bbb44141')!.ttl(1);
 				instance.items.get('bbb44141')!.created.subDays(1);
 
-				const result = await instance.prune();
+				const result = instance.prune();
 				expect(result).toBe(2);
+			});
+
+			it(`should not count an expired item when map delete does not remove it`, () => {
+				instance.pruneDelay(0);
+				instance.add({id: 'aaa1441'});
+				instance.items.get('aaa1441')!.ttl(1);
+				instance.items.get('aaa1441')!.created.subDays(1);
+
+				const spy = jest.spyOn(instance.items, 'delete').mockReturnValue(false);
+				const result = instance.prune();
+
+				expect(spy).toHaveBeenCalledWith('aaa1441');
+				spy.mockRestore();
+
+				expect(result).toBe(0);
+			});
+
+			it(`should only count expired items whose delete succeeds`, () => {
+				instance.pruneDelay(0);
+				instance.add({id: 'aaa1441'});
+				instance.add({id: 'bbb44141'});
+
+				for (const id of ['aaa1441', 'bbb44141']) {
+					instance.items.get(id)!.ttl(1);
+					instance.items.get(id)!.created.subDays(1);
+				}
+
+				const realDelete = Map.prototype.delete.bind(instance.items);
+				const spy = jest.spyOn(instance.items, 'delete').mockImplementation((key) => {
+					if (key === 'aaa1441') {
+						return false;
+					}
+
+					return realDelete(key);
+				});
+
+				const result = instance.prune();
+				spy.mockRestore();
+
+				expect(result).toBe(1);
+				expect(instance.items.has('aaa1441')).toBe(true);
+				expect(instance.items.has('bbb44141')).toBe(false);
 			});
 		});
 
@@ -243,34 +285,104 @@ describe('Cache', () => {
 			});
 		});
 
-		describe('defaultItemValidator', () => {
-			it(`should return false when item arg is undefined`, () => {
-				expect(instance.defaultItemValidator(undefined)).toBe(false);
+		describe('itemValidator', () => {
+			it(`should be null when cfg.itemValidator is not provided`, () => {
+				const custom = new Cache<SampleT>();
+
+				expect(custom.itemValidator).toBeNull();
 			});
 
-			it(`should return false when item arg is null`, () => {
-				expect(instance.defaultItemValidator(null)).toBe(false);
+			it(`should accept all items when cfg.itemValidator is not provided`, () => {
+				const custom = new Cache<SampleT>();
+
+				expect(custom.add(MOCK_ITEM1)).toBe(true);
+				expect(custom.add(MOCK_ITEM2)).toBe(true);
+				expect(custom.size()).toBe(2);
 			});
 
-			it(`should return true when item arg is truthy`, () => {
-				const item: SampleT = {
-					id: MOCK_ID
-				};
+			it(`should use cfg.itemValidator when provided`, () => {
+				const validator = jest.fn().mockReturnValue(true);
+				const custom = new Cache<SampleT>({
+					itemValidator: validator
+				});
 
-				expect(instance.defaultItemValidator(item)).toBe(true);
+				expect(custom.itemValidator).toBe(validator);
+			});
+
+			it(`should invoke validator with item arg on each add call`, () => {
+				const validator = jest.fn().mockReturnValue(true);
+				const custom = new Cache<SampleT>({
+					itemValidator: validator
+				});
+
+				custom.add(MOCK_ITEM1);
+				custom.add(MOCK_ITEM2);
+
+				expect(validator).toHaveBeenCalledTimes(2);
+				expect(validator).toHaveBeenCalledWith(MOCK_ITEM1);
+				expect(validator).toHaveBeenCalledWith(MOCK_ITEM2);
+			});
+
+			it(`should add items when validator returns true`, () => {
+				const custom = new Cache<SampleT>({
+					itemValidator: () => true
+				});
+
+				expect(custom.add(MOCK_ITEM1)).toBe(true);
+				expect(custom.size()).toBe(1);
+			});
+
+			it(`should not add items when validator returns false`, () => {
+				const custom = new Cache<SampleT>({
+					itemValidator: () => false
+				});
+
+				expect(custom.add(MOCK_ITEM1)).toBe(false);
+				expect(custom.size()).toBe(0);
 			});
 		});
 
-		describe('onMemoryWarning', () => {
-			it(`should call reset and return true`, async () => {
-				const spy = jest.spyOn(instance, 'reset');
-				expect(spy).not.toHaveBeenCalled();
+		describe('capacityMax', () => {
+			it(`should use default capacityMax when cfg.capacityMax is not provided`, () => {
+				const custom = new Cache<SampleT>();
 
-				const result = await instance.onMemoryWarning();
+				expect(custom.capacityMax).toBe(Defaults.Cache.CapacityMax);
+			});
 
-				expect(spy).toHaveBeenCalledTimes(1);
-				expect(result).toBe(true);
-				spy.mockRestore();
+			it(`should use cfg.capacityMax when provided`, () => {
+				const custom = new Cache<SampleT>({
+					capacityMax: 3
+				});
+
+				expect(custom.capacityMax).toBe(3);
+			});
+
+			it(`should evict oldest item when adding beyond capacity`, () => {
+				const custom = new Cache<SampleT>({
+					capacityMax: 2
+				});
+
+				custom.add({id: 'aa-111'});
+				custom.add({id: 'bb-222'});
+
+				expect(custom.add({id: 'cc-333'})).toBe(true);
+				expect(custom.size()).toBe(2);
+				expect(custom.has('aa-111')).toBe(false);
+				expect(custom.has('bb-222')).toBe(true);
+				expect(custom.has('cc-333')).toBe(true);
+			});
+
+			it(`should not evict when overwriting an existing item at capacity`, () => {
+				const custom = new Cache<SampleT>({
+					capacityMax: 2
+				});
+
+				custom.add({id: 'aa-111'});
+				custom.add({id: 'bb-222'});
+
+				expect(custom.add({id: 'bb-222'}, true)).toBe(true);
+				expect(custom.size()).toBe(2);
+				expect(custom.has('aa-111')).toBe(true);
 			});
 		});
 
@@ -288,10 +400,21 @@ describe('Cache', () => {
 				expect(instance.size()).toBe(0);
 			});
 
-			it(`should not throw when called repeatedly`, async () => {
-				expect(async () => {
+			it(`should restore capacityMax to its initial value`, () => {
+				const custom = new Cache<SampleT>({
+					capacityMax: 5
+				});
+
+				custom.capacityMax = 100;
+				custom.reset();
+
+				expect(custom.capacityMax).toBe(5);
+			});
+
+			it(`should not throw when called repeatedly`, () => {
+				expect(() => {
 					for (let i = 0; i < 5; i++) {
-						await instance.onMemoryWarning();
+						instance.reset();
 					}
 				}).not.toThrow();
 			});

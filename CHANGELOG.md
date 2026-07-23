@@ -1,6 +1,15 @@
 
 # [Unreleased]
 
+# [0.2.0] - 2026-07-22
+
+## Fixed
+* `cache.add` now properly validates TTL before adding items and rejects any call with a non-number, negative, or non-finite TTL value.
+* Updating `@toreda/time` to the latest available version fixed several bugs that could occur related to timeSince, timeUntil, and between specific time unit pairs
+
+## Maintenance
+* Updated project's NPM dependencies.
+
 # [0.1.1] - 2022-04-11
 
 ## Fixed

@@ -1,23 +1,22 @@
 {
-	"exclude": ["node_modules", "**/*.spec.ts", "tests", "dist/**", "gulpfile.ts"],
+	"exclude": ["node_modules", "**/*.spec.ts", "tests", "examples", "dist/**", "gulpfile.ts"],
 	"filesGlob": ["./src/**", "!./src/evt/**", "!./node_modules/**"],
 	"rootDir": ".",
 	"compilerOptions": {
 		"allowUnreachableCode": false,
 		"alwaysStrict": true,
 		"declaration": true,
-		"baseUrl": ".",
 		"esModuleInterop": true,
 		"isolatedModules": false,
 		"lib": ["es6"],
 		"module": "commonjs",
 		"moduleResolution": "node",
-		"noImplicitUseStrict": false,
 		"outDir": "./dist",
 		"preserveConstEnums": true,
 		"removeComments": false,
 		"resolveJsonModule": true,
 		"rootDir": ".",
+		"skipLibCheck": true,
 		"sourceMap": true,
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
@@ -26,18 +25,6 @@
 		"target": "es2015",
 		"traceResolution": false,
 		"paths": {}
-	},
-	"ts-jest": {
-		"compilerOptions": {
-			"checkJs": false,
-			"declaration": false,
-			"module": "commonjs",
-			"removeComments": false,
-			"skipLibCheck": true,
-			"sourceMap": false,
-			"target": "esnext",
-			"types": ["jest", "node"]
-		}
 	},
 	"ts-node": {
 		"compilerOptions": {

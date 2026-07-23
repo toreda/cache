@@ -1,7 +1,7 @@
 /**
  *	MIT License
  *
- *	Copyright (c) 2019 - 2022 Toreda, Inc.
+ *	Copyright (c) 2019 - 2026 Toreda, Inc.
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -98,9 +98,49 @@ describe('CacheItem<T>', () => {
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
+		it(`should use Default Cache Item TTL value when ttl arg is a boolean`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, true as any);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is an object`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, {} as any);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is a numeric string`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, '30' as any);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
 		it(`should initialize ttl property using ttl arg when ttl value is 0`, () => {
 			const custom = new CacheItem<SampleT>(sampleItem, 0);
 			expect(custom.ttl()).toBe(0);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is negative`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, -5);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
+		it(`should not create expired item when ttl arg is negative`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, -5);
+			expect(custom.expired()).toBe(false);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is NaN`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, NaN);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is Infinity`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, Infinity);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
+		});
+
+		it(`should use Default Cache Item TTL value when ttl arg is -Infinity`, () => {
+			const custom = new CacheItem<SampleT>(sampleItem, -Infinity);
+			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should not create expired item when TTL is not provided`, () => {

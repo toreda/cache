@@ -1,7 +1,7 @@
 /**
  *	MIT License
  *
- *	Copyright (c) 2019 - 2022 Toreda, Inc.
+ *	Copyright (c) 2019 - 2026 Toreda, Inc.
  *
  *	Permission is hereby granted, free of charge, to any person obtaining a copy
  *	of this software and associated documentation files (the "Software"), to deal
@@ -43,8 +43,8 @@ export interface CfgData<ItemT> {
 	/**
 	 *	Optional validator invoked each time cache.add is called. Items are added to cache when
 	 * validator returns true, and rejected when it returns false. Allows custom or extended cache
-	 * types to provide custom item validation. When `itemValidator` is not provided, the default
-	 * `itemValidator` is used which rejects only `undefined` and `null` items.
+	 * types to provide custom item validation. When `itemValidator` is not provided, validation
+	 * is skipped entirely and all items are accepted.
 	 */
 	itemValidator?: (item?: ItemT | null) => boolean;
 	/**
