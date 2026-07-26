@@ -1,6 +1,9 @@
 import {type CfgData} from '../cfg/data';
+import {type LogLike} from '@toreda/shared-types';
 
 export interface CacheInit<ItemT> {
+	/** Optional log instance used for cache activity & diagnostic output. */
+	log?: LogLike;
 	/**
 	 *	Optional validator invoked each time cache.add is called. Items are added to cache when
 	 * validator returns true, and rejected when it returns false. Allows custom or extended cache

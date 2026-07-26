@@ -1,6 +1,7 @@
 {
-	"exclude": ["node_modules", "**/*.spec.ts", "tests", "examples", "dist/**", "gulpfile.ts"],
-	"filesGlob": ["./src/**", "!./src/evt/**", "!./node_modules/**"],
+	"exclude": ["node_modules", "**/*.spec.ts", "tests", "dist/**"],
+	"filesGlob": ["./src/*.ts", "./src/**/*.ts", "!./node_modules/**"],
+	"include": ["./src/index.ts", "./src/"],
 	"rootDir": ".",
 	"compilerOptions": {
 		"allowUnreachableCode": false,
@@ -24,7 +25,8 @@
 		"strictPropertyInitialization": true,
 		"target": "es2015",
 		"traceResolution": false,
-		"paths": {}
+		"paths": {},
+		"types": ["@types/jest"]
 	},
 	"ts-node": {
 		"compilerOptions": {

@@ -67,6 +67,7 @@ export class Cache<ItemT extends Cacheable> {
 	public readonly lastPrune: Time;
 
 	constructor(init?: CacheInit<ItemT>) {
+		this.log = init?.log;
 		this.items = new Map<string, CacheItem<ItemT>>();
 
 		this.itemValidator = init?.itemValidator ? init?.itemValidator : null;
