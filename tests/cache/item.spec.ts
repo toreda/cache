@@ -32,13 +32,15 @@ interface SampleT extends Cacheable {
 	id: string;
 }
 
-const MOCK_ID = 'aaa-1907414';
+function makeItem(data: SampleT, ttl?: number): CacheItem<SampleT> {
+	return new CacheItem<SampleT>({data: data, ttl: ttl, addedSeq: 0});
+}
 
 describe('CacheItem<T>', () => {
 	let instance: CacheItem<SampleT>;
 
 	beforeAll(() => {
-		instance = new CacheItem<SampleT>({
+		instance = makeItem({
 			id: 'aaaa'
 		});
 	});
@@ -60,14 +62,14 @@ describe('CacheItem<T>', () => {
 			};
 
 			sampleTtl = 1917;
-			ctorInstance = new CacheItem<SampleT>(sampleItem, sampleTtl);
+			ctorInstance = makeItem(sampleItem, sampleTtl);
 		});
 
 		it(`should initialize data from data arg`, () => {
 			const data: SampleT = {
 				id: 'U-1-971497141947'
 			};
-			const custom = new CacheItem<SampleT>(data);
+			const custom = makeItem(data);
 			expect(custom.data).toStrictEqual(data);
 		});
 
@@ -83,79 +85,109 @@ describe('CacheItem<T>', () => {
 			expect(ctorInstance.data).toStrictEqual(sampleItem);
 		});
 
+		it(`should initialize addedSeq from init arg`, () => {
+			const custom = new CacheItem<SampleT>({data: sampleItem, addedSeq: 42});
+			expect(custom.addedSeq).toBe(42);
+		});
+
+		it(`should initialize lastAccessSeq equal to addedSeq`, () => {
+			const custom = new CacheItem<SampleT>({data: sampleItem, addedSeq: 42});
+			expect(custom.lastAccessSeq).toBe(42);
+		});
+
+		it(`should initialize accessCount to 0`, () => {
+			const custom = new CacheItem<SampleT>({data: sampleItem, addedSeq: 42});
+			expect(custom.accessCount).toBe(0);
+		});
+
 		it(`should use Default Cache Item TTL value when ttl arg is undefined`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, undefined);
+			const custom = makeItem(sampleItem, undefined);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is null`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, null as any);
+			const custom = makeItem(sampleItem, null as any);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is a truthy non-number`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, 'aaaaaa' as any);
+			const custom = makeItem(sampleItem, 'aaaaaa' as any);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is a boolean`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, true as any);
+			const custom = makeItem(sampleItem, true as any);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is an object`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, {} as any);
+			const custom = makeItem(sampleItem, {} as any);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is a numeric string`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, '30' as any);
+			const custom = makeItem(sampleItem, '30' as any);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should initialize ttl property using ttl arg when ttl value is 0`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, 0);
+			const custom = makeItem(sampleItem, 0);
 			expect(custom.ttl()).toBe(0);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is negative`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, -5);
+			const custom = makeItem(sampleItem, -5);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should not create expired item when ttl arg is negative`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, -5);
+			const custom = makeItem(sampleItem, -5);
 			expect(custom.expired()).toBe(false);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is NaN`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, NaN);
+			const custom = makeItem(sampleItem, NaN);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is Infinity`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, Infinity);
+			const custom = makeItem(sampleItem, Infinity);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should use Default Cache Item TTL value when ttl arg is -Infinity`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem, -Infinity);
+			const custom = makeItem(sampleItem, -Infinity);
 			expect(custom.ttl()).toBe(Defaults.CacheItem.TTL);
 		});
 
 		it(`should not create expired item when TTL is not provided`, () => {
-			const custom = new CacheItem<SampleT>(sampleItem);
+			const custom = makeItem(sampleItem);
 			expect(custom.expired()).toBe(false);
 		});
 
 		it(`should not create expired item when TTL is provided`, () => {
 			const ttl = 310;
-			const custom = new CacheItem<SampleT>(sampleItem, ttl);
+			const custom = makeItem(sampleItem, ttl);
 			expect(custom.expired()).toBe(false);
 		});
 	});
 
 	describe('Impl', () => {
+		describe('recordAccess', () => {
+			it(`should set lastAccessSeq to the provided seq`, () => {
+				const custom = new CacheItem<SampleT>({data: {id: 'a'}, addedSeq: 3});
+				custom.recordAccess(9);
+				expect(custom.lastAccessSeq).toBe(9);
+			});
+
+			it(`should increment accessCount on each call`, () => {
+				const custom = new CacheItem<SampleT>({data: {id: 'a'}, addedSeq: 3});
+				custom.recordAccess(4);
+				custom.recordAccess(5);
+				expect(custom.accessCount).toBe(2);
+			});
+		});
+
 		describe('update', () => {
 			it(`should set 'updated' timestamp to current now`, () => {
 				instance.updated(0);

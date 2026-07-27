@@ -42,6 +42,8 @@ export class CacheStats {
 	public evictions: number;
 	/** Number of expired items removed, whether by `prune` or lazily during lookups. */
 	public expirations: number;
+	/** Number of `add` calls refused by validator, capacity, admission, or a bad/duplicate id. */
+	public rejects: number;
 
 	constructor() {
 		this.hits = 0;
@@ -50,6 +52,7 @@ export class CacheStats {
 		this.deletes = 0;
 		this.evictions = 0;
 		this.expirations = 0;
+		this.rejects = 0;
 	}
 
 	/**
@@ -63,5 +66,6 @@ export class CacheStats {
 		this.deletes = 0;
 		this.evictions = 0;
 		this.expirations = 0;
+		this.rejects = 0;
 	}
 }

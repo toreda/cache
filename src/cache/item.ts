@@ -24,12 +24,26 @@
  */
 
 import {Defaults} from '../defaults';
-import type {Log} from '@toreda/log';
 import type {Time} from '@toreda/time';
 import {timeMake} from '@toreda/time';
 
 /**
- * Wraps generic cache items and stores meta data about the item.
+ * Init object accepted by the `CacheItem` constructor.
+ *
+ * @category Cache
+ */
+export interface CacheItemInit<ItemT> {
+	/** Wrapped item data. */
+	data: ItemT;
+	/** Optional TTL (seconds). `0` never expires; invalid values fall back to the default TTL. */
+	ttl?: number;
+	/** Monotonic insertion sequence assigned by the owning `Cache`. */
+	addedSeq: number;
+}
+
+/**
+ * Wraps generic cache items and stores meta data about the item, including the sequence and
+ * access metadata used by the eviction engine.
  *
  * @category Cache
  */
@@ -38,13 +52,24 @@ export class CacheItem<ItemT> {
 	public readonly created: Time;
 	public readonly updated: Time;
 	public readonly ttl: Time;
+	/** Monotonic insertion sequence. Never changes after construction. */
+	public readonly addedSeq: number;
+	/** Sequence of the most recent qualifying access. Starts equal to `addedSeq`. */
+	public lastAccessSeq: number;
+	/** Number of qualifying accesses since the item was added. Starts at 0. */
+	public accessCount: number;
+	/** Slot owned by internal feature modules (CLOCK reference bit, segment tags, etc.). */
+	public policyData?: unknown;
 
-	constructor(data: ItemT, ttl?: number) {
-		this.data = data;
+	constructor(init: CacheItemInit<ItemT>) {
+		this.data = init.data;
 
 		this.created = timeMake('s', 0).setNow();
 		this.updated = timeMake('s', 0);
-		this.ttl = timeMake('s', CacheItem.sanitizeTtl(ttl));
+		this.ttl = timeMake('s', CacheItem.sanitizeTtl(init.ttl));
+		this.addedSeq = init.addedSeq;
+		this.lastAccessSeq = init.addedSeq;
+		this.accessCount = 0;
 	}
 
 	/**
@@ -60,6 +85,16 @@ export class CacheItem<ItemT> {
 		}
 
 		return ttl;
+	}
+
+	/**
+	 * Record a qualifying access: advance `lastAccessSeq` and increment `accessCount`.
+	 * @param seq		Sequence value assigned by the owning cache for this access.
+	 * @returns			void
+	 */
+	public recordAccess(seq: number): void {
+		this.lastAccessSeq = seq;
+		this.accessCount++;
 	}
 
 	/**
@@ -88,5 +123,25 @@ export class CacheItem<ItemT> {
 
 	public update(): void {
 		this.updated.setNow();
+	}
+
+	/**
+	 * Seconds remaining before this item expires. Returns `0` when the item never expires
+	 * (ttl 0) and a value `<= 0`-clamped-to-0 semantics are avoided by callers checking
+	 * `expired()` first. A negative internal result is clamped to `0`.
+	 * @returns		Whole seconds remaining, or `0` when the item never expires.
+	 */
+	public remainingTtl(): number {
+		const ttl = this.ttl();
+		if (ttl === 0) {
+			return 0;
+		}
+
+		const base = this.updated() > 0 ? this.updated() : this.created();
+		const now = timeMake('s', 0).setNow();
+		const elapsed = now() - base;
+		const remaining = ttl - elapsed;
+
+		return remaining > 0 ? remaining : 0;
 	}
 }

@@ -32,10 +32,68 @@ npm install @toreda/cache
 
 # Usage
 
-```typescript
+The base `Cache` is policy-agnostic — every behavior is a config flag with a default that
+reproduces simple FIFO + TTL behavior:
 
+```typescript
+import {Cache} from '@toreda/cache';
+
+interface User {
+	[k: string]: unknown;
+	id: string;
+	name: string;
+}
+
+const cache = new Cache<User>({
+	cfg: {capacityMax: 1000, ttl: 300},
+	events: {
+		onItemEvict: (item, id) => console.log(`evicted ${id}`)
+	}
+});
+
+cache.add({id: 'u-1', name: 'Ada'});
+const user = cache.getOrAdd('u-2', (id) => ({id, name: 'Grace'}));
+console.log(cache.size, cache.get('u-1'));
 ```
 
+# Cache types
+
+Named wrappers pin the eviction flags for a well-known replacement policy. Every type combines
+freely with the expiration axis (`ttl`, sliding, prune) — the eviction policy and TTL are
+independent.
+
+| Type | Policy — who leaves at capacity |
+|---|---|
+| `FifoCache` | Oldest **inserted** item. |
+| `LifoCache` | Newest **inserted** item. |
+| `LruCache` | **Least-recently** used item. |
+| `MruCache` | **Most-recently** used item. |
+| `LfuCache` | **Least-frequently** used item (ties: least-recent). |
+| `RandomCache` | A uniformly **random** item (inject `rng` for determinism). |
+| `TtlCache` | **Nothing** — items leave only on TTL expiry (auto-pruned). Adds `getRemainingTtl(id)`. |
+| `ClockCache` | Insertion order with a **second-chance** reprieve for accessed items (CLOCK). |
+| `SlruCache` | **Segmented LRU** — probation feeds a protected region; scan-resistant. |
+| `TwoQueueCache` | **2Q** — FIFO probation + ghost list; re-referenced ids promote to the main region. |
+| `ArcCache` | **ARC** — adapts the recency/frequency balance from per-segment ghost hits. |
+| `TinyLfuCache` | **W-TinyLFU** — a frequency sketch gates admission; rare newcomers are refused. |
+
+Mix-and-match — an LRU cache with a 5-minute default TTL and sliding expiration on reads:
+
+```typescript
+import {LruCache} from '@toreda/cache';
+
+const cache = new LruCache<User>({
+	cfg: {
+		capacityMax: 500,
+		ttl: 300,
+		get: {slidesExpiration: true}
+	}
+});
+```
+
+Wrappers remove the flags they pin from the caller's `cfg` type, so contradictory combinations
+(e.g. asking an `LruCache` for FIFO eviction) are a compile-time error while orthogonal features
+still combine.
 
 # Source Code
 `@toreda/cache` is an open source package provided under the MIT License. Download, clone, or check the complete project source [here on Github](https://www.npmjs.com/package/@toreda/cache). We welcome bug reports, comments, and pull requests.

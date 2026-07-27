@@ -23,34 +23,59 @@
  *
  */
 
+import type {CfgAdmission} from './admission';
+import type {CfgEvict} from './evict';
+import type {CfgGetOp, CfgHasOp, CfgTouchOp} from './ops';
+import type {CfgGhosts} from './ghosts';
+import type {CfgPrune} from './prune';
+import type {CfgSegments} from './segments';
+
+export type {CfgAdmission, CfgAdmissionPolicy} from './admission';
+export type {CfgEvict, CfgEvictBasis, CfgEvictOrder, CfgEvictTieBreak} from './evict';
+export type {CfgGetOp, CfgHasOp, CfgTouchOp} from './ops';
+export type {CfgGhosts} from './ghosts';
+export type {CfgPrune} from './prune';
+export type {CfgSegments} from './segments';
+
 /**
- * Configuration options used during Cache init.
+ * Fully-resolved cache configuration. Data-only and serializable — a cache "type" is just a
+ * complete assignment of these flags. Constructed by `cfgResolve` from a `CfgPartial`; every
+ * field is present with a concrete value once resolved.
  *
  * @category Cache Config
  */
 export interface CfgData {
-	/** Maximum number of items that can be cached. When cache size would exceed this size, older
-	 * items are overwritten. */
+	// ── Capacity ──────────────────────────────────────────────
+	/** Maximum number of items. `0` = unbounded. */
 	capacityMax: number;
-	/**
-	 * Initial size of empty cache. Cache grows automatically as items are added up to `maxSize`.
-	 * Useful in cases where a larger starting cache size is ideal rather than letting it grow,
-	 * such as during init in systems which may rapidly add hundreds of thousands of cache items.
-	 */
+	/** Initial size hint for an empty cache. */
 	initialSize: number;
-	/**
-	 * Minimum number of seconds allowed prune calls. Prevents costly `prune` calls from occurring
-	 * too frequently.
-	 */
-	pruneDelay: number;
-	/**
-	 * When `true`, each successful `get` call refreshes the item's expiration window (sliding
-	 * expiration). When `false` (default), items expire based on the time they were added.
-	 */
-	slidingExpiration: boolean;
-	/**
-	 * Default TTL (seconds) applied to items added without an explicit per-item ttl. `0` means
-	 * items never expire. Invalid or missing values fall back to `Defaults.CacheItem.TTL`.
-	 */
+
+	// ── Expiration ────────────────────────────────────────────
+	/** Default TTL (seconds) for items added without an explicit ttl. `0` = never expire. */
 	ttl: number;
+
+	// ── Per-operation settings ────────────────────────────────
+	get: CfgGetOp;
+	has: CfgHasOp;
+	touch: CfgTouchOp;
+
+	// ── Prune ─────────────────────────────────────────────────
+	prune: CfgPrune;
+
+	// ── Eviction ──────────────────────────────────────────────
+	evict: CfgEvict;
+
+	// ── Segmentation ──────────────────────────────────────────
+	segments: CfgSegments;
+
+	// ── Ghost registry (ids only, no item data) ───────────────
+	ghosts: CfgGhosts;
+
+	// ── Adaptivity ────────────────────────────────────────────
+	/** When `true`, ghost hits shift the probation/protected target (ARC's p). */
+	adaptive: boolean;
+
+	// ── Admission ─────────────────────────────────────────────
+	admission: CfgAdmission;
 }

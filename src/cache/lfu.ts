@@ -23,36 +23,34 @@
  *
  */
 
-import type {Cache} from '../cache';
-import type {CacheEvents} from './events';
-import type {CacheItemId} from './item/id';
+import {Cache} from '../cache';
+import type {CacheInit} from './init';
 import type {Cacheable} from '../cacheable';
 import type {CfgPartial} from '../cfg/partial';
-import type {LogLike} from '@toreda/shared-types';
 
 /**
- * Init object accepted by the `Cache` constructor. Groups the function-valued options (validator,
- * rng, victim selector, events) alongside the data-only `cfg`.
+ * Init for {@link LfuCache}. The `evict` group is pinned by the wrapper.
  *
  * @category Cache
  */
-export interface CacheInit<ItemT extends Cacheable> {
-	/** Optional log instance used for cache activity & diagnostic output. */
-	log?: LogLike;
-	/** Caller-provided partial config merged over defaults during init. */
-	cfg?: CfgPartial;
-	/**
-	 * Optional validator invoked each time `add` is called. Items are added when the validator
-	 * returns `true` and rejected when it returns `false`. When omitted, all items are accepted.
-	 */
-	itemValidator?: (item?: ItemT | null) => boolean;
-	/** Random source for the `random` eviction basis and sketch hashing. Default `Math.random`. */
-	rng?: () => number;
-	/**
-	 * Escape hatch for victim selection rules no flag combination expresses. Returns the id to
-	 * evict, or `null` to reject the incoming add.
-	 */
-	victimSelector?: (cache: Cache<ItemT>, candidateId: CacheItemId) => CacheItemId | null;
-	/** Optional observability callbacks. */
-	events?: CacheEvents<ItemT>;
+export type LfuCacheInit<ItemT extends Cacheable> = Omit<CacheInit<ItemT>, 'cfg'> & {
+	cfg?: Omit<CfgPartial, 'evict'>;
+};
+
+/**
+ * Least-frequently-used cache. Evicts the item with the fewest accesses when full; frequency
+ * ties are broken by least-recent access.
+ *
+ * @category Cache
+ */
+export class LfuCache<ItemT extends Cacheable> extends Cache<ItemT> {
+	constructor(init?: LfuCacheInit<ItemT>) {
+		super({
+			...init,
+			cfg: {
+				...init?.cfg,
+				evict: {basis: 'frequency', order: 'oldest', secondChance: false, tieBreak: 'access'}
+			}
+		});
+	}
 }
