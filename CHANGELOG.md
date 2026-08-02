@@ -1,7 +1,7 @@
 
 # [Unreleased]
 
-# [1.0.0] - Unreleased
+# [1.0.0] - 2026-08-02
 ## Package
 * Now exports both `CommonJS` and `ESM` output. The ESM build under `dist/esm` uses explicit `./*.js` import specifiers and ships a `{"type": "module"}` marker so Node parses each build in the correct format.
 * Compile target raised from `es2015` to `es2022` for both builds — async/await and modern syntax are no longer downleveled.
