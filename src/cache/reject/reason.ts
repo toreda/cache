@@ -24,11 +24,11 @@
  */
 
 /**
- * Why an `add` call was refused. Passed to `onAddRejected`.
+ * Why an `add` call was refused. Passed to `onAddReject`.
  *
  * - `validator`	The configured `itemValidator` returned `false`.
  * - `admission`	The admission policy declined to admit the item (W-TinyLFU).
- * - `capacity`	    Cache is full and no victim could be evicted to make room.
+ * - `capacity`	    Cache is full and no eviction target could be selected to make room.
  * - `duplicate`	An item with the same id already exists and `overwrite` was not set.
  * - `bad-id`		The item produced no usable string id.
  *

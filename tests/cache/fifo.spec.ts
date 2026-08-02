@@ -24,7 +24,7 @@
  */
 
 import type {Cacheable} from '../../src/cacheable';
-import {FifoCache} from '../../src/cache/fifo';
+import {FifoCache} from '../../src/fifo/fifo';
 
 interface SampleT extends Cacheable {
 	id: string;

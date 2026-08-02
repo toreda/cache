@@ -1,31 +1,492 @@
-<!DOCTYPE html><html class="default"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@toreda/cache</title><meta name="description" content="Documentation for @toreda/cache"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script async src="assets/search.js" id="search-script"></script></head><body><script>document.body.classList.add(localStorage.getItem("tsd-theme") || "os")</script><header><div class="tsd-page-toolbar"><div class="container"><div class="table-wrap"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget search no-caption">Search</label><input type="text" id="tsd-search-field"/></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">@toreda/cache</a></div><div class="table-cell" id="tsd-widgets"><div id="tsd-filter"><a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a><div class="tsd-filter-group"><div class="tsd-select" id="tsd-filter-visibility"><span class="tsd-select-label">All</span><ul class="tsd-select-list"><li data-value="public">Public</li><li data-value="protected">Public/Protected</li><li data-value="private" class="selected">All</li></ul></div> <input type="checkbox" id="tsd-filter-inherited" checked/><label class="tsd-widget" for="tsd-filter-inherited">Inherited</label><input type="checkbox" id="tsd-filter-externals" checked/><label class="tsd-widget" for="tsd-filter-externals">Externals</label></div></div><a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a></div></div></div></div><div class="tsd-page-title"><div class="container"><h1>@toreda/cache</h1></div></div></header><div class="container container-main"><div class="row"><div class="col-8 col-content"><div class="tsd-panel tsd-typography">
-<a href="#toredacache" id="toredacache" style="color: inherit; text-decoration: none;">
-  <h1><code>@toreda/cache</code></h1>
-</a>
-<p><img src="https://content.toreda.com/logo/toreda-logo.png" alt="Toreda"></p>
-<p><img src="https://github.com/toreda/cache/workflows/CI/badge.svg?branch=master" alt="CI"> <a href="https://sonarcloud.io/dashboard?id=toreda_cache"><img src="https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=coverage" alt="Coverage"></a> <a href="https://sonarcloud.io/dashboard?id=toreda_cache"><img src="https://sonarcloud.io/api/project_badges/measure?project=toreda_cache&metric=alert_status" alt="Quality Gate Status"></a></p>
-<p>Simple TTL-based object cache in TypeScript.</p>
-<p>&nbsp;</p>
+<!DOCTYPE html><html class="default" lang="en" data-base="./"><head><meta charset="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>@toreda/cache</title><meta name="description" content="Documentation for @toreda/cache"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script><script async src="assets/hierarchy.js" id="tsd-hierarchy-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => window.app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar">
+<div class="tsd-toolbar-contents container"><a href="index.html" class="title">@toreda/cache</a>
+<div id="tsd-toolbar-links"></div><button id="tsd-search-trigger" class="tsd-widget" aria-label="Search"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-search"></use></svg></button><dialog id="tsd-search" aria-label="Search"><input role="combobox" id="tsd-search-input" aria-controls="tsd-search-results" aria-autocomplete="list" aria-expanded="true" autocapitalize="off" autocomplete="off" placeholder="Search the docs" maxLength="100"/>
+<ul role="listbox" id="tsd-search-results"></ul>
+<div id="tsd-search-status" aria-live="polite" aria-atomic="true">
+<div>Preparing search index...</div></div></dialog><a href="#" class="tsd-widget menu" id="tsd-toolbar-menu-trigger" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></header>
+<div class="container container-main">
+<div class="col-content">
+<div class="tsd-page-title">
+<h1>@toreda/cache</h1></div>
+<div class="tsd-panel tsd-typography"><p><img src="https://content.toreda.com/logo/toreda-logo.png" alt="Toreda"></p>
+<p><a href="https://github.com/toreda/cache/actions"><img src="https://img.shields.io/github/actions/workflow/status/toreda/cache/main.yml?branch=master&amp;style=for-the-badge" alt="CI"></a> <a href="https://github.com/toreda/cache/issues"><img src="https://img.shields.io/github/issues/toreda/cache?style=for-the-badge" alt="GitHub issues"></a></p>
+<p><a href="https://github.com/toreda/cache/releases/latest"><img src="https://img.shields.io/github/package-json/v/toreda/cache/master?style=for-the-badge" alt="GitHub package.json version (branch)"></a>
+<a href="https://github.com/toreda/cache/releases/latest"><img src="https://img.shields.io/github/release-date/toreda/cache?style=for-the-badge" alt="GitHub Release Date"></a></p>
+<p><a href="https://github.com/toreda/cache/blob/master/LICENSE"><img src="https://img.shields.io/github/license/toreda/cache?style=for-the-badge" alt="license"></a></p>
+<p> </p>
+<h1 id="_" class="tsd-anchor-link"><code>@toreda/cache</code><a href="#_" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>TypeScript caches for different use cases.</p>
+<p> </p>
+<h1 id="constructor-params" class="tsd-anchor-link">Constructor params<a href="#constructor-params" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>Every cache type takes a single optional init object. The named wrappers accept the same object
+minus the <code>cfg</code> flags they pin, and <code>TtlCache</code> additionally requires <code>cfg.ttl</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Purpose</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>log</code></td>
+<td>Log instance (<code>LogLike</code>) used for cache activity &amp; diagnostic output.</td>
+<td>None — logging disabled.</td>
+</tr>
+<tr>
+<td><code>cfg</code></td>
+<td>Deep-partial, data-only config merged over defaults (see table below).</td>
+<td>All defaults — simple FIFO + TTL behavior.</td>
+</tr>
+<tr>
+<td><code>itemValidator</code></td>
+<td>Called on every <code>add</code>; return <code>false</code> to reject the item (<code>onAddReject('validator')</code>).</td>
+<td>None — all items accepted.</td>
+</tr>
+<tr>
+<td><code>rng</code></td>
+<td>Random source for the <code>random</code> eviction basis and sketch hashing. Inject for deterministic tests.</td>
+<td><code>Math.random</code></td>
+</tr>
+<tr>
+<td><code>evictionTargetSelector</code></td>
+<td>Escape hatch for eviction target selection rules no flag combination expresses. Returns the id to evict, or <code>null</code> to reject the incoming add.</td>
+<td>None — selection follows <code>cfg.evict</code>.</td>
+</tr>
+<tr>
+<td><code>events</code></td>
+<td>Observability callbacks (<code>onItemAdd</code>, <code>onItemEvict</code>, <code>onItemExpire</code>, <code>onAddReject</code>, …), fired synchronously post-commit.</td>
+<td><code>{}</code> — no callbacks.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="options" class="tsd-anchor-link"><code>cfg</code> options<a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Purpose</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capacityMax</code></td>
+<td>Maximum number of items. <code>0</code> = unbounded.</td>
+<td><code>1000</code></td>
+</tr>
+<tr>
+<td><code>initialSize</code></td>
+<td>Initial size hint for an empty cache.</td>
+<td><code>0</code></td>
+</tr>
+<tr>
+<td><code>ttl</code></td>
+<td>Default TTL (seconds) for items added without an explicit <code>ttl</code>. <code>0</code> = never expire.</td>
+<td><code>30</code></td>
+</tr>
+<tr>
+<td><code>get.countsAsAccess</code></td>
+<td>A <code>get</code> call counts as an access for eviction accounting.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>get.slidesExpiration</code></td>
+<td>A <code>get</code> refreshes the item's expiration window.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>has.countsAsAccess</code></td>
+<td>A <code>has</code> call counts as an access for eviction accounting.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>has.slidesExpiration</code></td>
+<td>A <code>has</code> refreshes the item's expiration window.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>touch.countsAsAccess</code></td>
+<td>A <code>touch</code> call counts as an access for eviction accounting.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>prune.auto</code></td>
+<td>Interval timer prunes expired items automatically.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>prune.interval</code></td>
+<td>Seconds between auto-prune runs.</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>prune.minDelay</code></td>
+<td>Minimum seconds allowed between <code>prune()</code> calls.</td>
+<td><code>10</code></td>
+</tr>
+<tr>
+<td><code>evict.basis</code></td>
+<td>Metadata axis that chooses the eviction target: <code>insertion</code>, <code>access</code>, <code>frequency</code>, <code>random</code>, or <code>none</code>.</td>
+<td><code>insertion</code></td>
+</tr>
+<tr>
+<td><code>evict.order</code></td>
+<td>Direction along the basis: <code>oldest</code> or <code>newest</code>.</td>
+<td><code>oldest</code></td>
+</tr>
+<tr>
+<td><code>evict.secondChance</code></td>
+<td>Accessed items get one skip before eviction (CLOCK).</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>evict.tieBreak</code></td>
+<td>Tie-break for frequency ties: <code>access</code> or <code>insertion</code>.</td>
+<td><code>access</code></td>
+</tr>
+<tr>
+<td><code>segments.enabled</code></td>
+<td>Split the cache into probation + protected regions.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>segments.protectedRatio</code></td>
+<td>Protected region size as a fraction of <code>capacityMax</code>.</td>
+<td><code>0.8</code></td>
+</tr>
+<tr>
+<td><code>segments.probationRatio</code></td>
+<td>Probation budget as a fraction of <code>capacityMax</code> (2Q A1in).</td>
+<td><code>0.25</code></td>
+</tr>
+<tr>
+<td><code>segments.probationBasis</code></td>
+<td>Basis used to pick a probation eviction target: <code>access</code> (SLRU) or <code>insertion</code> (2Q).</td>
+<td><code>access</code></td>
+</tr>
+<tr>
+<td><code>segments.promoteOnHit</code></td>
+<td>A probation-region hit promotes the item to protected.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ghosts.enabled</code></td>
+<td>Keep a bounded, ids-only registry of recently-evicted items.</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ghosts.sizeRatio</code></td>
+<td>Ghost registry size as a fraction of <code>capacityMax</code>.</td>
+<td><code>0.5</code></td>
+</tr>
+<tr>
+<td><code>ghosts.perSegment</code></td>
+<td>Split ghosts into recency/frequency lists (ARC B1/B2).</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>adaptive</code></td>
+<td>Ghost hits shift the probation/protected balance (ARC's <code>p</code>).</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>admission.policy</code></td>
+<td><code>always</code> admits every newcomer; <code>frequency</code> compares sketch estimates (W-TinyLFU).</td>
+<td><code>always</code></td>
+</tr>
+<tr>
+<td><code>admission.windowRatio</code></td>
+<td>W-TinyLFU entry window as a fraction of <code>capacityMax</code>.</td>
+<td><code>0.01</code></td>
+</tr>
+<tr>
+<td><code>admission.sketchResetThreshold</code></td>
+<td>Sketch counter-halving threshold. <code>0</code> = derived from capacity.</td>
+<td><code>0</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="callbacks" class="tsd-anchor-link"><code>events</code> callbacks<a href="#callbacks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Callbacks provide external visibility into cache state changes.</p>
+<p>Every callback is optional and costs nothing when unset. Callbacks fire post-commit (state and
+stats already updated), synchronously, each wrapped in try/catch — a throwing callback is logged
+and never corrupts cache state.</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Signature</th>
+<th>Fired when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>onItemAdd</code></td>
+<td><code>(item, id)</code></td>
+<td>An item is successfully added.</td>
+</tr>
+<tr>
+<td><code>onItemExpire</code></td>
+<td><code>(item, id, timeAdded)</code></td>
+<td>An item is removed because its TTL elapsed. Precedes <code>onItemRemove</code>.</td>
+</tr>
+<tr>
+<td><code>onItemEvict</code></td>
+<td><code>(item, id)</code></td>
+<td>An item is removed to make room at capacity. Precedes <code>onItemRemove</code>.</td>
+</tr>
+<tr>
+<td><code>onItemRemove</code></td>
+<td><code>(item, id, reason)</code></td>
+<td>Every single-item removal, after any specific event. Reasons: <code>delete</code>, <code>evict</code>, <code>expire</code>, <code>overwrite</code>.</td>
+</tr>
+<tr>
+<td><code>onAddReject</code></td>
+<td><code>(item, reason)</code></td>
+<td>An <code>add</code> call is refused. Reasons: <code>validator</code>, <code>admission</code>, <code>capacity</code>, <code>duplicate</code>, <code>bad-id</code>.</td>
+</tr>
+<tr>
+<td><code>onItemHit</code></td>
+<td><code>(item, id, source)</code></td>
+<td>A cache hit via <code>get</code> or <code>touch</code> (<code>source</code> names which).</td>
+</tr>
+<tr>
+<td><code>onItemMiss</code></td>
+<td><code>(id)</code></td>
+<td>A <code>get</code> miss.</td>
+</tr>
+<tr>
+<td><code>onCapacityIncrease</code></td>
+<td><code>(oldMax, newMax)</code></td>
+<td>Capacity is raised via <code>setCapacity</code>.</td>
+</tr>
+<tr>
+<td><code>onCapacityDecrease</code></td>
+<td><code>(oldMax, newMax)</code></td>
+<td>Capacity is lowered via <code>setCapacity</code>.</td>
+</tr>
+<tr>
+<td><code>onClear</code></td>
+<td><code>(count)</code></td>
+<td>Once per <code>clear()</code> / <code>reset()</code> with the number of items removed.</td>
+</tr>
+<tr>
+<td><code>onReset</code></td>
+<td><code>()</code></td>
+<td>By <code>reset()</code>, after <code>onClear</code>.</td>
+</tr>
+<tr>
+<td><code>onPrune</code></td>
+<td><code>(removed)</code></td>
+<td>Whenever <code>prune()</code> actually runs (not delay-gated), including when 0 items were removed.</td>
+</tr>
+</tbody>
+</table>
+<p>Single-item removals fire the specific event (<code>onItemExpire</code> / <code>onItemEvict</code>) first, then the
+general <code>onItemRemove</code>. Bulk <code>clear()</code> / <code>reset()</code> fire only <code>onClear</code> (and <code>onReset</code>) — never
+per-item events.</p>
+<pre><code class="typescript"><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">LruCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">500</span><span class="hl-1">, </span><span class="hl-5">ttl:</span><span class="hl-1"> </span><span class="hl-6">300</span><span class="hl-1">},</span><br/><span class="hl-1">	</span><span class="hl-5">events:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-3">onItemEvict</span><span class="hl-5">:</span><span class="hl-1"> (</span><span class="hl-5">item</span><span class="hl-1">, </span><span class="hl-5">id</span><span class="hl-1">) </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-7">`evicted </span><span class="hl-0">${</span><span class="hl-5">id</span><span class="hl-0">}</span><span class="hl-7">`</span><span class="hl-1">),</span><br/><span class="hl-1">		</span><span class="hl-3">onItemExpire</span><span class="hl-5">:</span><span class="hl-1"> (</span><span class="hl-5">item</span><span class="hl-1">, </span><span class="hl-5">id</span><span class="hl-1">) </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-7">`expired </span><span class="hl-0">${</span><span class="hl-5">id</span><span class="hl-0">}</span><span class="hl-7">`</span><span class="hl-1">),</span><br/><span class="hl-1">		</span><span class="hl-3">onAddReject</span><span class="hl-5">:</span><span class="hl-1"> (</span><span class="hl-5">item</span><span class="hl-1">, </span><span class="hl-5">reason</span><span class="hl-1">) </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-3">warn</span><span class="hl-1">(</span><span class="hl-7">`add refused: </span><span class="hl-0">${</span><span class="hl-5">reason</span><span class="hl-0">}</span><span class="hl-7">`</span><span class="hl-1">)</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
 
-<a href="#install" id="install" style="color: inherit; text-decoration: none;">
-  <h1>Install</h1>
-</a>
-<p><code>@toreda/cache</code> is available as an <a href="https://www.npmjs.com/package/@toreda/cache">NPM package</a>.</p>
-<p>&nbsp;</p>
-<p><strong>Install with yarn:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">yarn add @toreda/cache</span>
-</code></pre>
-<p><strong>or Install with NPM:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">npm install @toreda/cache</span>
-</code></pre>
+<p> </p>
+<h1 id="usage" class="tsd-anchor-link">Usage<a href="#usage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p>The base <code>Cache</code> is policy-agnostic — every behavior is a config flag with a default that
+reproduces simple FIFO + TTL behavior:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">Cache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">interface</span><span class="hl-1"> </span><span class="hl-4">User</span><span class="hl-1"> {</span><br/><span class="hl-1">	[</span><span class="hl-5">k</span><span class="hl-1">: </span><span class="hl-4">string</span><span class="hl-1">]: </span><span class="hl-4">unknown</span><span class="hl-1">;</span><br/><span class="hl-1">	</span><span class="hl-5">id</span><span class="hl-1">: </span><span class="hl-4">string</span><span class="hl-1">;</span><br/><span class="hl-1">	</span><span class="hl-5">name</span><span class="hl-1">: </span><span class="hl-4">string</span><span class="hl-1">;</span><br/><span class="hl-1">}</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">Cache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">, </span><span class="hl-5">ttl:</span><span class="hl-1"> </span><span class="hl-6">300</span><span class="hl-1">},</span><br/><span class="hl-1">	</span><span class="hl-5">events:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-3">onItemEvict</span><span class="hl-5">:</span><span class="hl-1"> (</span><span class="hl-5">item</span><span class="hl-1">, </span><span class="hl-5">id</span><span class="hl-1">) </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-7">`evicted </span><span class="hl-0">${</span><span class="hl-5">id</span><span class="hl-0">}</span><span class="hl-7">`</span><span class="hl-1">)</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;u-1&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">user</span><span class="hl-1"> = </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">getOrAdd</span><span class="hl-1">(</span><span class="hl-7">&#39;u-2&#39;</span><span class="hl-1">, (</span><span class="hl-5">id</span><span class="hl-1">) </span><span class="hl-0">=&gt;</span><span class="hl-1"> ({</span><span class="hl-5">id</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">}));</span><br/><span class="hl-5">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-5">size</span><span class="hl-1">, </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;u-1&#39;</span><span class="hl-1">));</span>
+</code><button type="button">Copy</button></pre>
 
-<a href="#source-code" id="source-code" style="color: inherit; text-decoration: none;">
-  <h1>Source Code</h1>
-</a>
-<p><code>@toreda/cache</code> is an open source package provided under the MIT License. Download, clone, or check the complete project source <a href="https://www.npmjs.com/package/@toreda/cache">here on Github</a>. We welcome bug reports, comments, and pull requests.</p>
+<h2 id="cache-types" class="tsd-anchor-link">Cache types<a href="#cache-types" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Named wrappers pin the eviction flags for a well-known replacement policy. Every type combines
+freely with the expiration axis (<code>ttl</code>, sliding, prune) — the eviction policy and TTL are
+independent.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Policy — who leaves at capacity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FifoCache</code></td>
+<td>Oldest <strong>inserted</strong> item.</td>
+</tr>
+<tr>
+<td><code>LifoCache</code></td>
+<td>Newest <strong>inserted</strong> item.</td>
+</tr>
+<tr>
+<td><code>LruCache</code></td>
+<td><strong>Least-recently</strong> used item.</td>
+</tr>
+<tr>
+<td><code>MruCache</code></td>
+<td><strong>Most-recently</strong> used item.</td>
+</tr>
+<tr>
+<td><code>LfuCache</code></td>
+<td><strong>Least-frequently</strong> used item (ties: least-recent).</td>
+</tr>
+<tr>
+<td><code>RandomCache</code></td>
+<td>A uniformly <strong>random</strong> item (inject <code>rng</code> for determinism).</td>
+</tr>
+<tr>
+<td><code>TtlCache</code></td>
+<td><strong>Nothing</strong> — items leave only on TTL expiry (auto-pruned). Adds <code>getRemainingTtl(id)</code>.</td>
+</tr>
+<tr>
+<td><code>ClockCache</code></td>
+<td>Insertion order with a <strong>second-chance</strong> reprieve for accessed items (CLOCK).</td>
+</tr>
+<tr>
+<td><code>SlruCache</code></td>
+<td><strong>Segmented LRU</strong> — probation feeds a protected region; scan-resistant.</td>
+</tr>
+<tr>
+<td><code>TwoQueueCache</code></td>
+<td><strong>2Q</strong> — FIFO probation + ghost list; re-referenced ids promote to the main region.</td>
+</tr>
+<tr>
+<td><code>ArcCache</code></td>
+<td><strong>ARC</strong> — adapts the recency/frequency balance from per-segment ghost hits.</td>
+</tr>
+<tr>
+<td><code>TinyLfuCache</code></td>
+<td><strong>W-TinyLFU</strong> — a frequency sketch gates admission; rare newcomers are refused.</td>
+</tr>
+</tbody>
+</table>
+<p>All examples below use the <code>User</code> interface defined above.</p>
+<h2 id="_-1" class="tsd-anchor-link"><code>FifoCache</code><a href="#_-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>First-in, first-out. Insertion order alone decides the eviction target — reads never reorder anything:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">FifoCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">FifoCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// Reads don&#39;t affect FIFO order.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// Evicts &#39;a&#39; — the oldest insert.</span>
+</code><button type="button">Copy</button></pre>
 
-<a href="#license" id="license" style="color: inherit; text-decoration: none;">
-  <h1>License</h1>
-</a>
-<p><a href="LICENSE">MIT</a> &copy; Toreda, Inc.</p>
-</div></div><div class="col-4 col-menu menu-sticky-wrap menu-highlight"><nav class="tsd-navigation primary"><ul><li class="current"><a href="modules.html">Exports</a></li></ul></nav><nav class="tsd-navigation secondary menu-sticky"><ul><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/Cache.html" class="tsd-kind-icon">Cache</a></li><li class="tsd-kind-class tsd-has-type-parameter"><a href="classes/CacheItem.html" class="tsd-kind-icon">Cache<wbr/>Item</a></li><li class="tsd-kind-interface"><a href="interfaces/Cacheable.html" class="tsd-kind-icon">Cacheable</a></li><li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/CfgData.html" class="tsd-kind-icon">Cfg<wbr/>Data</a></li><li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="modules.html#CacheIdFn" class="tsd-kind-icon">Cache<wbr/>Id<wbr/>Fn</a></li><li class="tsd-kind-function tsd-has-type-parameter"><a href="modules.html#cacheItemId" class="tsd-kind-icon">cache<wbr/>Item<wbr/>Id</a></li></ul></nav></div></div></div><footer class="with-border-bottom"><div class="container"><h2>Legend</h2><div class="tsd-legend-group"><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li><li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li></ul><ul class="tsd-legend"><li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li></ul></div><h2>Settings</h2><p>Theme <select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></p></div></footer><div class="container tsd-generator"><p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div><div class="overlay"></div><script src="assets/main.js"></script></body></html>
+<h2 id="_-2" class="tsd-anchor-link"><code>LifoCache</code><a href="#_-2" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Last-in, first-out — the newest insert is sacrificed to protect older entries:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">LifoCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">LifoCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// Evicts &#39;b&#39; — the newest insert; &#39;a&#39; survives.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-3" class="tsd-anchor-link"><code>LruCache</code><a href="#_-3" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Least-recently used. Every <code>get</code> / <code>touch</code> refreshes an item's recency:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">LruCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">LruCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// &#39;a&#39; is now most-recent.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// Evicts &#39;b&#39; — least-recently used.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-4" class="tsd-anchor-link"><code>MruCache</code><a href="#_-4" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Most-recently used — evicts the hottest item, useful for cyclic scans where the item you just
+read is the one you'll need last:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">MruCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">MruCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// &#39;a&#39; is now most-recent.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// Evicts &#39;a&#39; — the most-recently used.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-5" class="tsd-anchor-link"><code>LfuCache</code><a href="#_-5" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Least-frequently used. Each read increments a hit count; ties fall back to least-recent:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">LfuCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">LfuCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">);</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// &#39;a&#39; has 2 hits, &#39;b&#39; has 0.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// Evicts &#39;b&#39; — the least-frequently used.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-6" class="tsd-anchor-link"><code>RandomCache</code><a href="#_-6" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Uniform random replacement. Inject <code>rng</code> to make eviction deterministic in tests:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">RandomCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">RandomCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">},</span><br/><span class="hl-1">	</span><span class="hl-3">rng</span><span class="hl-5">:</span><span class="hl-1"> () </span><span class="hl-0">=&gt;</span><span class="hl-1"> </span><span class="hl-6">0.42</span><span class="hl-1"> </span><span class="hl-9">// Optional — defaults to Math.random.</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-7" class="tsd-anchor-link"><code>TtlCache</code><a href="#_-7" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Pure expiration — no capacity evictions, items leave only when their (required) TTL elapses.
+An auto-prune timer sweeps expired items; call <code>stopAutoPrune()</code> when done with the cache:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">TtlCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">TtlCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">ttl:</span><span class="hl-1"> </span><span class="hl-6">60</span><span class="hl-1">} </span><span class="hl-9">// Seconds. Required, and capacity is unbounded by default.</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">getRemainingTtl</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// Whole seconds until expiry, or null once gone.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">stopAutoPrune</span><span class="hl-1">(); </span><span class="hl-9">// Release the sweep timer on shutdown.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-8" class="tsd-anchor-link"><code>ClockCache</code><a href="#_-8" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>CLOCK (second-chance FIFO). A hand sweeps insertion order, but an accessed item gets one
+reprieve before eviction — LRU-like behavior without reordering on every read:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">ClockCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">ClockCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">2</span><span class="hl-1">}});</span><br/><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Ada&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;b&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Grace&#39;</span><span class="hl-1">});</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">get</span><span class="hl-1">(</span><span class="hl-7">&#39;a&#39;</span><span class="hl-1">); </span><span class="hl-9">// Marks &#39;a&#39; referenced.</span><br/><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;c&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;Edsger&#39;</span><span class="hl-1">}); </span><span class="hl-9">// &#39;a&#39; is spared once; &#39;b&#39; is evicted instead.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-9" class="tsd-anchor-link"><code>SlruCache</code><a href="#_-9" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Segmented LRU. New items sit in probation; a hit promotes them into the protected region, so a
+one-time scan of new ids can't displace the working set:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">SlruCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">SlruCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">segments:</span><span class="hl-1"> {</span><span class="hl-5">protectedRatio:</span><span class="hl-1"> </span><span class="hl-6">0.8</span><span class="hl-1">} </span><span class="hl-9">// Optional — protected region share (default 0.8).</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-10" class="tsd-anchor-link"><code>TwoQueueCache</code><a href="#_-10" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>2Q. A FIFO probation queue (A1in) absorbs newcomers and a ghost list (A1out) remembers recent
+evictees — a quick re-reference admits an id straight into the main LRU region:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">TwoQueueCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">TwoQueueCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">segments:</span><span class="hl-1"> {</span><span class="hl-5">probationRatio:</span><span class="hl-1"> </span><span class="hl-6">0.25</span><span class="hl-1">}, </span><span class="hl-9">// Optional — A1in share (default 0.25).</span><br/><span class="hl-1">		</span><span class="hl-5">ghosts:</span><span class="hl-1"> {</span><span class="hl-5">sizeRatio:</span><span class="hl-1"> </span><span class="hl-6">0.5</span><span class="hl-1">} </span><span class="hl-9">// Optional — A1out budget vs capacity (default 0.5).</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-11" class="tsd-anchor-link"><code>ArcCache</code><a href="#_-11" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>ARC. Self-tuning — per-segment ghost lists track whether recency or frequency evictions are
+being regretted, and the balance point adapts toward whichever is winning:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">ArcCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">ArcCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">segments:</span><span class="hl-1"> {</span><span class="hl-5">protectedRatio:</span><span class="hl-1"> </span><span class="hl-6">0.5</span><span class="hl-1">} </span><span class="hl-9">// Optional — ARC&#39;s starting balance point (default 0.5).</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="_-12" class="tsd-anchor-link"><code>TinyLfuCache</code><a href="#_-12" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>W-TinyLFU. A count-min sketch estimates access frequency, and a newcomer is only admitted over
+the resident eviction target when the sketch says it's at least as popular — <code>add</code> returns <code>false</code> when
+admission is refused:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">TinyLfuCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">TinyLfuCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">1000</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">admission:</span><span class="hl-1"> {</span><br/><span class="hl-1">			</span><span class="hl-5">windowRatio:</span><span class="hl-1"> </span><span class="hl-6">0.01</span><span class="hl-1">, </span><span class="hl-9">// Optional — entry window share (default 0.01).</span><br/><span class="hl-1">			</span><span class="hl-5">sketchResetThreshold:</span><span class="hl-1"> </span><span class="hl-6">100_000</span><span class="hl-1"> </span><span class="hl-9">// Optional — halve sketch counts after this many increments.</span><br/><span class="hl-1">		}</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">admitted</span><span class="hl-1"> = </span><span class="hl-5">cache</span><span class="hl-1">.</span><span class="hl-3">add</span><span class="hl-1">({</span><span class="hl-5">id:</span><span class="hl-1"> </span><span class="hl-7">&#39;rare&#39;</span><span class="hl-1">, </span><span class="hl-5">name:</span><span class="hl-1"> </span><span class="hl-7">&#39;One-hit wonder&#39;</span><span class="hl-1">});</span><br/><span class="hl-9">// admitted === false when the frequency sketch refuses the newcomer at capacity.</span>
+</code><button type="button">Copy</button></pre>
+
+<h2 id="combining-policies-with-expiration" class="tsd-anchor-link">Combining policies with expiration<a href="#combining-policies-with-expiration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Mix-and-match — an LRU cache with a 5-minute default TTL and sliding expiration on reads:</p>
+<pre><code class="typescript"><span class="hl-8">import</span><span class="hl-1"> {</span><span class="hl-5">LruCache</span><span class="hl-1">} </span><span class="hl-8">from</span><span class="hl-1"> </span><span class="hl-7">&#39;@toreda/cache&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">cache</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">LruCache</span><span class="hl-1">&lt;</span><span class="hl-4">User</span><span class="hl-1">&gt;({</span><br/><span class="hl-1">	</span><span class="hl-5">cfg:</span><span class="hl-1"> {</span><br/><span class="hl-1">		</span><span class="hl-5">capacityMax:</span><span class="hl-1"> </span><span class="hl-6">500</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">ttl:</span><span class="hl-1"> </span><span class="hl-6">300</span><span class="hl-1">,</span><br/><span class="hl-1">		</span><span class="hl-5">get:</span><span class="hl-1"> {</span><span class="hl-5">slidesExpiration:</span><span class="hl-1"> </span><span class="hl-0">true</span><span class="hl-1">}</span><br/><span class="hl-1">	}</span><br/><span class="hl-1">});</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Wrappers remove the flags they pin from the caller's <code>cfg</code> type, so contradictory combinations
+(e.g. asking an <code>LruCache</code> for FIFO eviction) are a compile-time error while orthogonal features
+still combine.</p>
+<h1 id="source-code" class="tsd-anchor-link">Source Code<a href="#source-code" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p><code>@toreda/cache</code> is an open source package provided under the MIT License. Download, clone, or check the complete project source <a href="https://github.com/toreda/cache">here on Github</a>. We welcome bug reports, comments, and pull requests.</p>
+<p> </p>
+<h1 id="legal" class="tsd-anchor-link">Legal<a href="#legal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<h2 id="license" class="tsd-anchor-link">License<a href="#license" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p><a href="media/LICENSE">MIT</a> © Toreda, Inc.</p>
+<h2 id="copyright" class="tsd-anchor-link">Copyright<a href="#copyright" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2>
+<p>Copyright © 2019 - 2026 Toreda, Inc. All Rights Reserved.</p>
+<p> </p>
+<h1 id="website" class="tsd-anchor-link">Website<a href="#website" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1>
+<p><a href="https://www.toreda.com">https://www.toreda.com</a></p>
+</div></div>
+<div class="col-sidebar">
+<div class="page-menu">
+<div class="tsd-navigation settings">
+<details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>Settings</h3></summary>
+<div class="tsd-accordion-details">
+<div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span>
+<ul id="tsd-filter-options">
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
+<li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div>
+<div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg>
+<h3>On This Page</h3></summary>
+<div class="tsd-accordion-details"><a href="#_"><span></span></a><a href="#constructor-params"><span>Constructor params</span></a>
+<ul>
+<li><a href="#options"><span> options</span></a></li>
+<li><a href="#callbacks"><span> callbacks</span></a></li></ul><a href="#usage"><span>Usage</span></a>
+<ul>
+<li><a href="#cache-types"><span>Cache types</span></a></li>
+<li><a href="#_-1"><span></span></a></li>
+<li><a href="#_-2"><span></span></a></li>
+<li><a href="#_-3"><span></span></a></li>
+<li><a href="#_-4"><span></span></a></li>
+<li><a href="#_-5"><span></span></a></li>
+<li><a href="#_-6"><span></span></a></li>
+<li><a href="#_-7"><span></span></a></li>
+<li><a href="#_-8"><span></span></a></li>
+<li><a href="#_-9"><span></span></a></li>
+<li><a href="#_-10"><span></span></a></li>
+<li><a href="#_-11"><span></span></a></li>
+<li><a href="#_-12"><span></span></a></li>
+<li><a href="#combining-policies-with-expiration"><span>Combining policies with expiration</span></a></li></ul><a href="#source-code"><span>Source <wbr/>Code</span></a><a href="#legal"><span>Legal</span></a>
+<ul>
+<li><a href="#license"><span>License</span></a></li>
+<li><a href="#copyright"><span>Copyright</span></a></li></ul><a href="#website"><span>Website</span></a></div></details></div>
+<div class="site-menu">
+<nav class="tsd-navigation"><a href="modules.html">@toreda/cache</a>
+<ul class="tsd-small-nested-navigation" id="tsd-nav-container">
+<li>Loading...</li></ul></nav></div></div></div><footer>
+<p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer>
+<div class="overlay"></div></body></html>

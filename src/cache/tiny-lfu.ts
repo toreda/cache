@@ -51,8 +51,8 @@ export type TinyLfuCacheInit<ItemT extends Cacheable> = Omit<CacheInit<ItemT>, '
 
 /**
  * W-TinyLFU cache. A small admission window (probation) feeds a frequency-gated main region: a
- * newcomer is admitted over the main victim only when a count-min sketch estimates it is accessed
- * at least as often, so rarely-used newcomers cannot evict a proven hot item.
+ * newcomer is admitted over the main eviction target only when a count-min sketch estimates it is
+ * accessed at least as often, so rarely-used newcomers cannot evict a proven hot item.
  *
  * @category Cache
  */

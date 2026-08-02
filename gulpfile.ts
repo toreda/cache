@@ -27,6 +27,8 @@ import {Levels, Log} from '@toreda/log';
 
 import {Build} from '@toreda/build-tools';
 import {EventEmitter} from 'events';
+import {promises as fs} from 'fs';
+import {replaceTscAliasPaths} from 'tsc-alias';
 import {series} from 'gulp';
 
 const log = new Log({
@@ -57,8 +59,25 @@ function cleanDist(): Promise<NodeJS.ReadWriteStream> {
 	return build.gulpSteps.cleanDir('./dist', true);
 }
 
-function buildSrc(): Promise<NodeJS.ReadWriteStream> {
+function buildCjs(): Promise<NodeJS.ReadWriteStream> {
 	return build.run.typescript('./dist', 'tsconfig.json');
 }
 
-exports.default = series(createDist, cleanDist, runLint, buildSrc);
+function buildEsm(): Promise<NodeJS.ReadWriteStream> {
+	return build.run.typescript('./dist/esm', 'tsconfig.esm.json');
+}
+
+async function finalizeEsm(): Promise<void> {
+	// tsc emits relative imports without extensions, which Node's ESM loader
+	// rejects. Rewrite them to explicit './x.js' specifiers in js + d.ts output.
+	await replaceTscAliasPaths({
+		configFile: 'tsconfig.esm.json',
+		resolveFullPaths: true
+	});
+
+	// Mark everything under dist/esm as ESM. The package root has no "type"
+	// field, so dist/*.js stays CommonJS.
+	await fs.writeFile('./dist/esm/package.json', JSON.stringify({type: 'module'}, null, '\t') + '\n');
+}
+
+exports.default = series(createDist, cleanDist, runLint, buildCjs, buildEsm, finalizeEsm);

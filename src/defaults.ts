@@ -70,7 +70,7 @@ export class Defaults {
 			MinDelay: 10
 		},
 		Evict: {
-			/** Which metadata axis chooses the victim at capacity. */
+			/** Which metadata axis chooses the eviction target at capacity. */
 			Basis: 'insertion',
 			/** Direction along the basis: `oldest` or `newest`. */
 			Order: 'oldest',
@@ -86,7 +86,7 @@ export class Defaults {
 			ProtectedRatio: 0.8,
 			/** Probation budget as a fraction of `capacityMax` (2Q kin). */
 			ProbationRatio: 0.25,
-			/** Basis used to pick a probation victim. */
+			/** Basis used to pick a probation eviction target. */
 			ProbationBasis: 'access',
 			/** When `true`, a probation-region hit promotes the item to protected. */
 			PromoteOnHit: true

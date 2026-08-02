@@ -25,10 +25,8 @@
 
 import type {CacheItemId} from './item/id';
 import type {CfgData} from '../cfg/data';
-import type {PolicySegment} from './policy/data';
-
-/** Which ghost list an id came from / lives in. */
-export type GhostList = 'recency' | 'frequency';
+import type {PolicySegment} from '../policy/segment';
+import type {GhostList} from '../ghost/list';
 
 /**
  * Bounded registry of recently-evicted item ids (ids only — no item data). Used by 2Q and ARC to

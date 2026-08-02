@@ -23,22 +23,34 @@
  *
  */
 
-/**
- * Segment membership tag used by the segmentation module.
- *
- * @category Cache
- */
-export type PolicySegment = 'probation' | 'protected';
+import {Cache} from '../cache';
+import type {CacheInit} from '../cache/init';
+import type {Cacheable} from '../cacheable';
+import type {CfgPartial} from '../cfg/partial';
 
 /**
- * Internal per-item metadata owned by feature modules and stored in `CacheItem.policyData`.
- * Not part of the public API.
+ * Init for {@link FifoCache}. The `evict` group is pinned by the wrapper and removed from the
+ * caller's reach.
  *
  * @category Cache
  */
-export interface PolicyMeta {
-	/** CLOCK reference bit — set on qualifying access, cleared during the second-chance sweep. */
-	referenced?: boolean;
-	/** Segmentation membership. */
-	segment?: PolicySegment;
+export type FifoCacheInit<ItemT extends Cacheable> = Omit<CacheInit<ItemT>, 'cfg'> & {
+	cfg?: Omit<CfgPartial, 'evict'>;
+};
+
+/**
+ * First-in-first-out cache. Evicts the oldest item (by insertion order) when full.
+ *
+ * @category Cache
+ */
+export class FifoCache<ItemT extends Cacheable> extends Cache<ItemT> {
+	constructor(init?: FifoCacheInit<ItemT>) {
+		super({
+			...init,
+			cfg: {
+				...init?.cfg,
+				evict: {basis: 'insertion', order: 'oldest', secondChance: false, tieBreak: 'access'}
+			}
+		});
+	}
 }

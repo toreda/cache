@@ -9,7 +9,7 @@
 		"declaration": true,
 		"esModuleInterop": true,
 		"isolatedModules": false,
-		"lib": ["es6"],
+		"lib": ["es2022"],
 		"module": "commonjs",
 		"moduleResolution": "node",
 		"outDir": "./dist",
@@ -23,7 +23,7 @@
 		"strictNullChecks": true,
 		"strictFunctionTypes": true,
 		"strictPropertyInitialization": true,
-		"target": "es2015",
+		"target": "es2022",
 		"traceResolution": false,
 		"paths": {},
 		"types": ["@types/jest"]

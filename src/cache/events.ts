@@ -50,7 +50,7 @@ export interface CacheEvents<ItemT> {
 	/** Fired for every single-item removal, after any specific event, with the reason. */
 	onItemRemove?: (item: ItemT, id: CacheItemId, reason: CacheRemoveReason) => void;
 	/** Fired when an `add` call is refused, with the reason. */
-	onAddRejected?: (item: ItemT, reason: CacheRejectReason) => void;
+	onAddReject?: (item: ItemT, reason: CacheRejectReason) => void;
 
 	// ── Access (opt-in observability; zero cost when unset) ───
 	/** Fired on a cache hit via `get` or `touch`. */

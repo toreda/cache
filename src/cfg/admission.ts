@@ -25,7 +25,7 @@
 
 /**
  * Admission policy: `always` admits every valid item; `frequency` uses a frequency sketch to
- * decide whether a newcomer displaces the eviction victim (W-TinyLFU).
+ * decide whether a newcomer displaces the eviction target (W-TinyLFU).
  *
  * @category Cache Config
  */

@@ -1,2 +1,7 @@
-onlyBuiltDependencies:
-  - '@swc/core'
+nodeLinker: hoisted
+allowBuilds:
+  '@swc/core': true
+  es5-ext: false
+  unrs-resolver: false
+overrides:
+  glob-parent: ^5.1.2

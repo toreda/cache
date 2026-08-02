@@ -38,8 +38,8 @@ describe('TinyLfuCache', () => {
 	});
 
 	it(`should reject a low-frequency newcomer over an established hot set`, () => {
-		const onAddRejected = jest.fn();
-		const cache = new TinyLfuCache<SampleT>({cfg: {capacityMax: 3, ttl: 0}, events: {onAddRejected}});
+		const onAddReject = jest.fn();
+		const cache = new TinyLfuCache<SampleT>({cfg: {capacityMax: 3, ttl: 0}, events: {onAddReject}});
 		// Build hot items and hammer their frequency via repeated gets.
 		cache.add({id: 'h1'});
 		cache.add({id: 'h2'});
@@ -53,17 +53,17 @@ describe('TinyLfuCache', () => {
 		// A brand-new cold id with no frequency history should lose admission.
 		const admitted = cache.add({id: 'cold'});
 		expect(admitted).toBe(false);
-		expect(onAddRejected).toHaveBeenCalledWith({id: 'cold'}, 'admission');
+		expect(onAddReject).toHaveBeenCalledWith({id: 'cold'}, 'admission');
 		expect(cache.has('cold')).toBe(false);
 		expect(cache.has('h1')).toBe(true);
 	});
 
-	it(`should admit a high-frequency newcomer over a low-frequency victim`, () => {
+	it(`should admit a high-frequency newcomer over a low-frequency eviction target`, () => {
 		const cache = new TinyLfuCache<SampleT>({cfg: {capacityMax: 3, ttl: 0}});
 		cache.add({id: 'a'});
 		cache.add({id: 'b'});
 		cache.add({id: 'c'});
-		// Warm 'hot' via repeated misses (misses feed the sketch) so it out-ranks the victim.
+		// Warm 'hot' via repeated misses (misses feed the sketch) so it out-ranks the eviction target.
 		for (let i = 0; i < 12; i++) {
 			cache.get('hot');
 		}

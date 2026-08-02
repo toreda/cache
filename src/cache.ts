@@ -33,7 +33,6 @@ import {CacheGhosts} from './cache/ghosts';
 import {CacheSegments} from './cache/segments';
 import {CacheStats} from './cache/stats';
 import {CountMinSketch} from './cache/sketch';
-import type {PolicyMeta, PolicySegment} from './cache/policy/data';
 import type {Cacheable} from './cacheable';
 import type {CfgData} from './cfg/data';
 import type {LogLike} from '@toreda/shared-types';
@@ -42,6 +41,8 @@ import {cacheItemId} from './cache/item/id';
 import {cfgResolve} from './cfg/resolve';
 import {cfgValidate} from './cfg/validate';
 import {timeMake} from '@toreda/time';
+import type {PolicyMeta} from './policy/meta';
+import type {PolicySegment} from './policy/segment';
 
 /**
  * Source operation that triggered a `getItem` lookup, used to apply the matching per-operation
@@ -97,8 +98,11 @@ export class Cache<ItemT extends Cacheable> {
 	protected readonly itemValidator: ((item?: ItemT | null) => boolean) | null;
 	/** Random source for the `random` eviction basis and sketch hashing. */
 	protected readonly rng: () => number;
-	/** Optional escape-hatch victim selector. */
-	protected readonly victimSelector?: (cache: Cache<ItemT>, candidateId: CacheItemId) => CacheItemId | null;
+	/** Optional escape-hatch eviction target selector. */
+	protected readonly evictionTargetSelector?: (
+		cache: Cache<ItemT>,
+		candidateId: CacheItemId
+	) => CacheItemId | null;
 	/** User observability callbacks. Defaults to an empty object. */
 	protected readonly events: CacheEvents<ItemT>;
 	/** Default TTL (seconds) applied to items added without an explicit ttl. */
@@ -142,7 +146,7 @@ export class Cache<ItemT extends Cacheable> {
 		this.items = new Map<CacheItemId, CacheItem<ItemT>>();
 		this.itemValidator = init?.itemValidator ? init.itemValidator : null;
 		this.rng = init?.rng ? init.rng : Math.random;
-		this.victimSelector = init?.victimSelector;
+		this.evictionTargetSelector = init?.evictionTargetSelector;
 		this.events = init?.events ? init.events : {};
 		this.itemTtl = cfg.ttl;
 		this._capacityMax = cfg.capacityMax;
@@ -500,17 +504,17 @@ export class Cache<ItemT extends Cacheable> {
 	}
 
 	/**
-	 * Reject an `add`: increment the reject stat and fire `onAddRejected`.
+	 * Reject an `add`: increment the reject stat and fire `onAddReject`.
 	 */
 	private reject(item: ItemT, reason: CacheRejectReason): false {
 		this.stats.rejects++;
-		this.emit('onAddRejected', item, reason);
+		this.emit('onAddReject', item, reason);
 		return false;
 	}
 
 	/**
-	 * Add item to cache. When adding would exceed `capacityMax`, victims are evicted via the
-	 * active eviction policy to make room. Rejected adds fire `onAddRejected` and bump
+	 * Add item to cache. When adding would exceed `capacityMax`, eviction targets are removed via the
+	 * active eviction policy to make room. Rejected adds fire `onAddReject` and bump
 	 * `stats.rejects`.
 	 * @param item		Item to cache.
 	 * @param opts		Optional `overwrite` and `ttl`.
@@ -571,12 +575,12 @@ export class Cache<ItemT extends Cacheable> {
 		}
 
 		while (this.items.size >= this._capacityMax) {
-			const victim = this.selectVictim(candidateId);
-			if (victim === null) {
+			const evictionTarget = this.selectEvictionTarget(candidateId);
+			if (evictionTarget === null) {
 				return 'capacity';
 			}
 
-			this.removeItem(victim, 'evict');
+			this.removeItem(evictionTarget, 'evict');
 		}
 
 		return null;
@@ -584,30 +588,31 @@ export class Cache<ItemT extends Cacheable> {
 
 	/**
 	 * W-TinyLFU admission. The probation region is the entry window. At capacity, compare the
-	 * newcomer's estimated frequency against the main (protected) victim's: the newcomer wins →
-	 * evict the main victim to make room; it loses → refuse admission. When there is no main victim
-	 * yet (protected empty), evict the window victim instead so the newcomer still enters probation.
+	 * newcomer's estimated frequency against the main (protected) eviction target's: the newcomer
+	 * wins → evict the main target to make room; it loses → refuse admission. When there is no main
+	 * eviction target yet (protected empty), evict the window target instead so the newcomer still
+	 * enters probation.
 	 */
 	private admitByFrequency(candidateId: CacheItemId): CacheRejectReason | null {
 		while (this.items.size >= this._capacityMax) {
-			const mainVictim = this.protectedVictim();
-			if (mainVictim === null) {
-				// No protected victim yet — evict from the window (probation) to admit newcomer.
-				const windowVictim = this.probationVictim() ?? this.victimByBasis();
-				if (windowVictim === null) {
+			const mainEvictionTarget = this.protectedEvictionTarget();
+			if (mainEvictionTarget === null) {
+				// No protected eviction target yet — evict from the window (probation) to admit newcomer.
+				const windowEvictionTarget = this.probationEvictionTarget() ?? this.evictionTargetByBasis();
+				if (windowEvictionTarget === null) {
 					return 'capacity';
 				}
 
-				this.removeItem(windowVictim, 'evict');
+				this.removeItem(windowEvictionTarget, 'evict');
 				continue;
 			}
 
 			const sketch = this.sketch;
 			const candidateFreq = sketch ? sketch.estimate(candidateId) : 0;
-			const victimFreq = sketch ? sketch.estimate(mainVictim) : 0;
+			const evictionTargetFreq = sketch ? sketch.estimate(mainEvictionTarget) : 0;
 
-			if (candidateFreq > victimFreq) {
-				this.removeItem(mainVictim, 'evict');
+			if (candidateFreq > evictionTargetFreq) {
+				this.removeItem(mainEvictionTarget, 'evict');
 			} else {
 				return 'admission';
 			}
@@ -668,14 +673,14 @@ export class Cache<ItemT extends Cacheable> {
 
 	/**
 	 * Select the id to evict to make room for `candidateId`, or `null` to reject the add. Delegates
-	 * to `init.victimSelector` when provided, else dispatches on `evict.basis`. Selection is a
+	 * to `init.evictionTargetSelector` when provided, else dispatches on `evict.basis`. Selection is a
 	 * metadata scan — the `items` Map is never reordered.
 	 * @param candidateId	Id of the item being added.
-	 * @returns				Victim id, or `null` when no eviction is possible.
+	 * @returns				Eviction target id, or `null` when no eviction is possible.
 	 */
-	protected selectVictim(candidateId: CacheItemId): CacheItemId | null {
-		if (this.victimSelector) {
-			return this.victimSelector(this, candidateId);
+	protected selectEvictionTarget(candidateId: CacheItemId): CacheItemId | null {
+		if (this.evictionTargetSelector) {
+			return this.evictionTargetSelector(this, candidateId);
 		}
 
 		if (this._cfg.evict.basis === 'none' || this.items.size === 0) {
@@ -683,33 +688,33 @@ export class Cache<ItemT extends Cacheable> {
 		}
 
 		if (this.segments) {
-			return this.victimBySegments();
+			return this.evictionTargetBySegments();
 		}
 
 		if (this._cfg.evict.secondChance) {
-			return this.victimByClock();
+			return this.evictionTargetByClock();
 		}
 
-		return this.victimByBasis();
+		return this.evictionTargetByBasis();
 	}
 
-	/** Dispatch to the plain metadata-scan victim for the configured `evict.basis`. */
-	private victimByBasis(): CacheItemId | null {
+	/** Dispatch to the plain metadata-scan eviction target for the configured `evict.basis`. */
+	private evictionTargetByBasis(): CacheItemId | null {
 		switch (this._cfg.evict.basis) {
 			case 'access':
-				return this.victimByAccess();
+				return this.evictionTargetByAccess();
 			case 'frequency':
-				return this.victimByFrequency();
+				return this.evictionTargetByFrequency();
 			case 'random':
-				return this.victimByRandom();
+				return this.evictionTargetByRandom();
 			case 'insertion':
 			default:
-				return this.victimByInsertion();
+				return this.evictionTargetByInsertion();
 		}
 	}
 
 	/** `insertion` basis: first key (`oldest`) or last key (`newest`). O(1)/O(n). */
-	private victimByInsertion(): CacheItemId | null {
+	private evictionTargetByInsertion(): CacheItemId | null {
 		if (this._cfg.evict.order === 'newest') {
 			let last: CacheItemId | null = null;
 			for (const key of this.items.keys()) {
@@ -723,20 +728,20 @@ export class Cache<ItemT extends Cacheable> {
 	}
 
 	/** `access` basis: min (`oldest`) / max (`newest`) `lastAccessSeq`. */
-	private victimByAccess(): CacheItemId | null {
+	private evictionTargetByAccess(): CacheItemId | null {
 		const newest = this._cfg.evict.order === 'newest';
-		let victim: CacheItemId | null = null;
+		let evictionTarget: CacheItemId | null = null;
 		let best = 0;
 
 		for (const [id, item] of this.items) {
 			const value = item.lastAccessSeq;
-			if (victim === null || (newest ? value > best : value < best)) {
-				victim = id;
+			if (evictionTarget === null || (newest ? value > best : value < best)) {
+				evictionTarget = id;
 				best = value;
 			}
 		}
 
-		return victim;
+		return evictionTarget;
 	}
 
 	/**
@@ -744,10 +749,10 @@ export class Cache<ItemT extends Cacheable> {
 	 * `evict.tieBreak` — `access` prefers the lower `lastAccessSeq`, `insertion` the lower
 	 * `addedSeq`.
 	 */
-	private victimByFrequency(): CacheItemId | null {
+	private evictionTargetByFrequency(): CacheItemId | null {
 		const newest = this._cfg.evict.order === 'newest';
 		const tieByInsertion = this._cfg.evict.tieBreak === 'insertion';
-		let victim: CacheItemId | null = null;
+		let evictionTarget: CacheItemId | null = null;
 		let bestCount = 0;
 		let bestTie = 0;
 
@@ -755,8 +760,8 @@ export class Cache<ItemT extends Cacheable> {
 			const count = item.accessCount;
 			const tie = tieByInsertion ? item.addedSeq : item.lastAccessSeq;
 
-			if (victim === null) {
-				victim = id;
+			if (evictionTarget === null) {
+				evictionTarget = id;
 				bestCount = count;
 				bestTie = tie;
 				continue;
@@ -765,17 +770,17 @@ export class Cache<ItemT extends Cacheable> {
 			const better = newest ? count > bestCount : count < bestCount;
 			const tied = count === bestCount;
 			if (better || (tied && tie < bestTie)) {
-				victim = id;
+				evictionTarget = id;
 				bestCount = count;
 				bestTie = tie;
 			}
 		}
 
-		return victim;
+		return evictionTarget;
 	}
 
 	/** `random` basis: the nth key for a uniformly random n in `[0, size)`. */
-	private victimByRandom(): CacheItemId | null {
+	private evictionTargetByRandom(): CacheItemId | null {
 		const n = Math.floor(this.rng() * this.items.size);
 		let i = 0;
 		for (const id of this.items.keys()) {
@@ -796,11 +801,11 @@ export class Cache<ItemT extends Cacheable> {
 	/**
 	 * CLOCK second-chance sweep. Walks the insertion-ordered keys starting just after `clockHand`
 	 * (wrapping). A referenced item is given one reprieve (bit cleared) and skipped; the first
-	 * unreferenced item is the victim. If every item was referenced, the sweep cleared all bits and
-	 * we fall back to the plain basis victim. The hand is left at the victim's predecessor so the
-	 * next sweep resumes where this one stopped.
+	 * unreferenced item is the eviction target. If every item was referenced, the sweep cleared all
+	 * bits and we fall back to the plain basis eviction target. The hand is left at the eviction
+	 * target's predecessor so the next sweep resumes where this one stopped.
 	 */
-	private victimByClock(): CacheItemId | null {
+	private evictionTargetByClock(): CacheItemId | null {
 		const keys = Array.from(this.items.keys());
 		if (keys.length === 0) {
 			return null;
@@ -826,47 +831,47 @@ export class Cache<ItemT extends Cacheable> {
 				continue;
 			}
 
-			// Victim found — resume the next sweep at this item's predecessor.
+			// Eviction target found — resume the next sweep at this item's predecessor.
 			this.clockHand = idx === 0 ? null : keys[idx - 1];
 			return id;
 		}
 
-		// Every bit was set (and is now cleared) — fall back to the plain basis victim.
+		// Every bit was set (and is now cleared) — fall back to the plain basis eviction target.
 		this.clockHand = null;
-		return this.victimByBasis();
+		return this.evictionTargetByBasis();
 	}
 
 	/**
-	 * Segment-aware victim selection. Prefers a probation victim (via `probationBasis`) when
-	 * probation is over budget or protected has no candidates; otherwise falls back to protected
-	 * members via `evict.basis`/`order`.
+	 * Segment-aware eviction target selection. Prefers a probation target (via `probationBasis`)
+	 * when probation is over budget or protected has no candidates; otherwise falls back to
+	 * protected members via `evict.basis`/`order`.
 	 */
-	private victimBySegments(): CacheItemId | null {
+	private evictionTargetBySegments(): CacheItemId | null {
 		const segments = this.segments;
 		if (!segments) {
-			return this.victimByBasis();
+			return this.evictionTargetByBasis();
 		}
 
 		// SLRU/2Q: eviction targets probation first; protected is only touched when probation is
-		// empty. (The probation-over-budget case still resolves to a probation victim here, so it
+		// empty. (The probation-over-budget case still resolves to a probation eviction target, so it
 		// is covered by the same branch.)
-		const probationVictim = this.probationVictim();
-		if (probationVictim !== null) {
-			return probationVictim;
+		const probationEvictionTarget = this.probationEvictionTarget();
+		if (probationEvictionTarget !== null) {
+			return probationEvictionTarget;
 		}
 
-		const protectedVictim = this.protectedVictim();
-		if (protectedVictim !== null) {
-			return protectedVictim;
+		const protectedEvictionTarget = this.protectedEvictionTarget();
+		if (protectedEvictionTarget !== null) {
+			return protectedEvictionTarget;
 		}
 
-		return this.victimByBasis();
+		return this.evictionTargetByBasis();
 	}
 
 	/** Probation member chosen by `segments.probationBasis` (lowest lastAccessSeq / addedSeq). */
-	private probationVictim(): CacheItemId | null {
+	private probationEvictionTarget(): CacheItemId | null {
 		const byInsertion = this._cfg.segments.probationBasis === 'insertion';
-		let victim: CacheItemId | null = null;
+		let evictionTarget: CacheItemId | null = null;
 		let best = 0;
 
 		for (const [id, item] of this.items) {
@@ -876,19 +881,19 @@ export class Cache<ItemT extends Cacheable> {
 			}
 
 			const value = byInsertion ? item.addedSeq : item.lastAccessSeq;
-			if (victim === null || value < best) {
-				victim = id;
+			if (evictionTarget === null || value < best) {
+				evictionTarget = id;
 				best = value;
 			}
 		}
 
-		return victim;
+		return evictionTarget;
 	}
 
 	/** Protected member chosen by `evict.basis`/`order`. */
-	private protectedVictim(): CacheItemId | null {
+	private protectedEvictionTarget(): CacheItemId | null {
 		const newest = this._cfg.evict.order === 'newest';
-		let victim: CacheItemId | null = null;
+		let evictionTarget: CacheItemId | null = null;
 		let best = 0;
 
 		for (const [id, item] of this.items) {
@@ -898,13 +903,13 @@ export class Cache<ItemT extends Cacheable> {
 			}
 
 			const value = item.lastAccessSeq;
-			if (victim === null || (newest ? value > best : value < best)) {
-				victim = id;
+			if (evictionTarget === null || (newest ? value > best : value < best)) {
+				evictionTarget = id;
 				best = value;
 			}
 		}
 
-		return victim;
+		return evictionTarget;
 	}
 
 	/**
@@ -1028,7 +1033,7 @@ export class Cache<ItemT extends Cacheable> {
 	/**
 	 * Change the capacity cap. Rejects non-finite, negative, or non-number values. `0` = unbounded.
 	 * On a decrease below current size, immediately evicts via the active policy until
-	 * `size <= next`, firing evict events per victim. Fires `onCapacityIncrease` /
+	 * `size <= next`, firing evict events per eviction target. Fires `onCapacityIncrease` /
 	 * `onCapacityDecrease` on change.
 	 * @param next		New capacity cap.
 	 * @returns			`true` when applied, otherwise `false`.
@@ -1054,12 +1059,12 @@ export class Cache<ItemT extends Cacheable> {
 
 		// Shrink: evict via the active policy until within the new cap.
 		while (this._capacityMax > 0 && this.items.size > this._capacityMax) {
-			const victim = this.selectVictim('');
-			if (victim === null) {
+			const evictionTarget = this.selectEvictionTarget('');
+			if (evictionTarget === null) {
 				break;
 			}
 
-			this.removeItem(victim, 'evict');
+			this.removeItem(evictionTarget, 'evict');
 		}
 
 		return true;

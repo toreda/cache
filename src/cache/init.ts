@@ -32,7 +32,7 @@ import type {LogLike} from '@toreda/shared-types';
 
 /**
  * Init object accepted by the `Cache` constructor. Groups the function-valued options (validator,
- * rng, victim selector, events) alongside the data-only `cfg`.
+ * rng, eviction target selector, events) alongside the data-only `cfg`.
  *
  * @category Cache
  */
@@ -49,10 +49,10 @@ export interface CacheInit<ItemT extends Cacheable> {
 	/** Random source for the `random` eviction basis and sketch hashing. Default `Math.random`. */
 	rng?: () => number;
 	/**
-	 * Escape hatch for victim selection rules no flag combination expresses. Returns the id to
-	 * evict, or `null` to reject the incoming add.
+	 * Escape hatch for eviction target selection rules no flag combination expresses. Returns the
+	 * id to evict, or `null` to reject the incoming add.
 	 */
-	victimSelector?: (cache: Cache<ItemT>, candidateId: CacheItemId) => CacheItemId | null;
+	evictionTargetSelector?: (cache: Cache<ItemT>, candidateId: CacheItemId) => CacheItemId | null;
 	/** Optional observability callbacks. */
 	events?: CacheEvents<ItemT>;
 }

@@ -58,7 +58,7 @@ export function cfgValidate(cfg: CfgData, log?: LogLike): void {
 	// ── Errors ────────────────────────────────────────────────
 	if (cfg.admission.policy === 'frequency' && cfg.evict.basis === 'none') {
 		throw new Error(
-			`cfg invalid: admission.policy 'frequency' requires an eviction victim but evict.basis is 'none'.`
+			`cfg invalid: admission.policy 'frequency' requires an eviction target but evict.basis is 'none'.`
 		);
 	}
 

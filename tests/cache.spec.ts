@@ -638,41 +638,41 @@ describe('Cache', () => {
 
 	describe('rejects', () => {
 		it(`should count validator rejects with reason 'validator'`, () => {
-			const onAddRejected = jest.fn();
-			const custom = new Cache<SampleT>({itemValidator: () => false, events: {onAddRejected}});
+			const onAddReject = jest.fn();
+			const custom = new Cache<SampleT>({itemValidator: () => false, events: {onAddReject}});
 			expect(custom.add(MOCK_ITEM1)).toBe(false);
 			expect(custom.stats.rejects).toBe(1);
-			expect(onAddRejected).toHaveBeenCalledWith(MOCK_ITEM1, 'validator');
+			expect(onAddReject).toHaveBeenCalledWith(MOCK_ITEM1, 'validator');
 		});
 
 		it(`should count bad-id rejects with reason 'bad-id'`, () => {
-			const onAddRejected = jest.fn();
-			const custom = new Cache<SampleT>({events: {onAddRejected}});
+			const onAddReject = jest.fn();
+			const custom = new Cache<SampleT>({events: {onAddReject}});
 			const bad = {id: ''} as SampleT;
 			expect(custom.add(bad)).toBe(false);
 			expect(custom.stats.rejects).toBe(1);
-			expect(onAddRejected).toHaveBeenCalledWith(bad, 'bad-id');
+			expect(onAddReject).toHaveBeenCalledWith(bad, 'bad-id');
 		});
 
 		it(`should count duplicate rejects with reason 'duplicate'`, () => {
-			const onAddRejected = jest.fn();
-			const custom = new Cache<SampleT>({events: {onAddRejected}});
+			const onAddReject = jest.fn();
+			const custom = new Cache<SampleT>({events: {onAddReject}});
 			custom.add(MOCK_ITEM1);
 			expect(custom.add(MOCK_ITEM1)).toBe(false);
 			expect(custom.stats.rejects).toBe(1);
-			expect(onAddRejected).toHaveBeenCalledWith(MOCK_ITEM1, 'duplicate');
+			expect(onAddReject).toHaveBeenCalledWith(MOCK_ITEM1, 'duplicate');
 		});
 
 		it(`should count capacity rejects with reason 'capacity' when eviction is disabled`, () => {
-			const onAddRejected = jest.fn();
+			const onAddReject = jest.fn();
 			const custom = new Cache<SampleT>({
 				cfg: {capacityMax: 1, evict: {basis: 'none'}},
-				events: {onAddRejected}
+				events: {onAddReject}
 			});
 			custom.add(MOCK_ITEM1);
 			expect(custom.add(MOCK_ITEM2)).toBe(false);
 			expect(custom.stats.rejects).toBe(1);
-			expect(onAddRejected).toHaveBeenCalledWith(MOCK_ITEM2, 'capacity');
+			expect(onAddReject).toHaveBeenCalledWith(MOCK_ITEM2, 'capacity');
 		});
 	});
 

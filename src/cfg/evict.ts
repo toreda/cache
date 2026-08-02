@@ -24,7 +24,7 @@
  */
 
 /**
- * Which metadata axis chooses the victim when the cache is full.
+ * Which metadata axis chooses the eviction target when the cache is full.
  *
  * @category Cache Config
  */
@@ -50,7 +50,7 @@ export type CfgEvictTieBreak = 'insertion' | 'access';
  * @category Cache Config
  */
 export interface CfgEvict {
-	/** Which metadata axis chooses the victim. `none` disables eviction. Default `insertion`. */
+	/** Which metadata axis chooses the eviction target. `none` disables eviction. Default `insertion`. */
 	basis: CfgEvictBasis;
 	/** Direction along the basis. Default `oldest` (least/most for frequency). */
 	order: CfgEvictOrder;

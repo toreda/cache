@@ -26,7 +26,7 @@
 import type {CacheItem} from './item';
 import type {CacheItemId} from './item/id';
 import type {CfgData} from '../cfg/data';
-import type {PolicyMeta} from './policy/data';
+import type {PolicyMeta} from '../policy/meta';
 
 /**
  * Read-only view of the owning cache that the segmentation module needs. Kept minimal so the
@@ -145,12 +145,12 @@ export class CacheSegments<ItemT> {
 	private enforceProtectedBudget(exemptId: CacheItemId): void {
 		const budget = this.protectedBudget();
 		while (this.protectedCount > budget) {
-			const victim = this.lowestProtected(exemptId);
-			if (victim === null) {
+			const demoted = this.lowestProtected(exemptId);
+			if (demoted === null) {
 				break;
 			}
 
-			const meta = this.host.policyMeta(victim.item);
+			const meta = this.host.policyMeta(demoted.item);
 			meta.segment = 'probation';
 			this.protectedCount = Math.max(0, this.protectedCount - 1);
 			this.probationCount++;

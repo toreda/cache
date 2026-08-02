@@ -37,7 +37,7 @@ export interface CfgSegments {
 	protectedRatio: number;
 	/** Probation budget as a fraction of `capacityMax` (2Q kin). Default `0.25`. */
 	probationRatio: number;
-	/** Basis used to pick a probation victim. Default `access` (SLRU); `insertion` = 2Q A1in. */
+	/** Basis used to pick a probation eviction target. Default `access` (SLRU); `insertion` = 2Q A1in. */
 	probationBasis: CfgEvictTieBreak;
 	/** When `true`, a probation-region hit promotes the item to protected. Default `true`. */
 	promoteOnHit: boolean;
